@@ -723,7 +723,7 @@ function renderPg(cur,tot){
   h+=`<button class="pg-btn" ${cur===tot?'disabled':''} onclick="goPage(${cur+1})">Nästa ›</button>`;
   el.innerHTML=h;
 }
-function goPage(n){S.page=n;render();$('feed-scroll')&&$('feed-scroll').scrollTop||document.querySelector('.feed-scroll').scrollTop=0;}
+function goPage(n){S.page=n;render();var sc=document.querySelector('.feed-scroll');if(sc)sc.scrollTop=0;}
 
 function renderAch(){
   const row=$('ach-row');
