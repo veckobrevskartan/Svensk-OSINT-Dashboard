@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Svensk OSINT – Sökbart arkiv</title>
+<meta name="description" content="Sökbart arkiv över Svensk OSINTs publicerade inlägg om säkerhet, hybridhot och geopolitik.">
+<meta property="og:title" content="Svensk OSINT – Sökbart arkiv">
+<meta property="og:description" content="Sök och filtrera bland händelser, aktörer och trender i Svensk OSINTs omvärldsbevakning.">
+<meta property="og:type" content="website">
+<link rel="canonical" href="https://veckobrevskartan.github.io/arkiv/">
+<style>
+:root {
+  --bg: #0f1923;
+  --bg2: #152130;
+  --bg3: #1c2d3f;
+  --bg4: #243547;
+  --card: #1a2840;
+  --card-border: #2a3f58;
+  --accent: #4a9eff;
+  --accent2: #2a7de1;
+  --text: #e8edf3;
+  --text2: #9aacbe;
+  --text3: #6b839b;
+  --tag-bg: #1f3450;
+  --tag-text: #7eb8f7;
+  --pmesii-P: #7c6fd4; --pmesii-P-bg: #251e4a;
+  --pmesii-M: #e05252; --pmesii-M-bg: #3a1a1a;
+  --pmesii-E: #52b876; --pmesii-E-bg: #163025;
+  --pmesii-S: #e8a030; --pmesii-S-bg: #352408;
+  --pmesii-INFO: #4a9eff; --pmesii-INFO-bg: #0d2540;
+  --pmesii-INFRA: #e8784a; --pmesii-INFRA-bg: #3a1f0d;
+  --cat-HYBRID: #9b59b6; --cat-MIL: #e74c3c; --cat-INFRA: #e67e22;
+  --cat-INTEL: #3498db; --cat-DRONE: #1abc9c; --cat-TERROR: #c0392b;
+  --cat-NUCLEAR: #f39c12; --cat-MAR: #2980b9; --cat-GPS: #27ae60;
+  --cat-POLICY: #8e44ad; --cat-LEGAL: #7f8c8d;
+  --radius: 8px; --radius-lg: 12px;
+  --transition: 0.15s ease;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif; font-size: 15px; line-height: 1.6; }
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+button { cursor: pointer; font-family: inherit; }
+
+/* HEADER */
+#site-header { background: var(--bg2); border-bottom: 1px solid var(--card-border); padding: 0 1.5rem; }
+.header-inner { max-width: 1400px; margin: 0 auto; display: flex; align-items: center; gap: 1.5rem; padding: 0.875rem 0; }
+.logo { display: flex; align-items: center; gap: 0.75rem; }
+.logo-mark { width: 36px; height: 36px; background: var(--accent2); border-radius: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.logo-mark svg { width: 20px; height: 20px; fill: #fff; }
+.logo-text { line-height: 1.2; }
+.logo-title { font-size: 16px; font-weight: 600; color: var(--text); }
+.logo-sub { font-size: 12px; color: var(--text3); }
+.header-search { flex: 1; max-width: 560px; }
+.search-wrap { position: relative; }
+.search-wrap input { width: 100%; background: var(--bg3); border: 1px solid var(--card-border); border-radius: var(--radius); padding: 0.5rem 2.5rem 0.5rem 2.25rem; color: var(--text); font-size: 14px; outline: none; transition: border-color var(--transition); }
+.search-wrap input:focus { border-color: var(--accent); }
+.search-wrap input::placeholder { color: var(--text3); }
+.search-icon { position: absolute; left: 0.65rem; top: 50%; transform: translateY(-50%); color: var(--text3); pointer-events: none; }
+.search-clear { position: absolute; right: 0.65rem; top: 50%; transform: translateY(-50%); color: var(--text3); background: none; border: none; padding: 2px; display: none; }
+.search-clear.visible { display: block; }
+.header-links { display: flex; gap: 1rem; flex-shrink: 0; }
+.header-links a { font-size: 13px; color: var(--text2); white-space: nowrap; }
+.header-links a:hover { color: var(--accent); text-decoration: none; }
+
+/* SEARCH MODE TOGGLE */
+.search-mode { display: flex; gap: 0.5rem; align-items: center; padding: 0.4rem 0.75rem; background: var(--bg2); border-bottom: 1px solid var(--card-border); font-size: 12px; color: var(--text3); }
+.search-mode-inner { max-width: 1400px; margin: 0 auto; display: flex; gap: 0.75rem; align-items: center; }
+.mode-btn { background: none; border: 1px solid var(--card-border); border-radius: 4px; padding: 2px 8px; font-size: 11px; color: var(--text3); transition: all var(--transition); }
+.mode-btn.active, .mode-btn:hover { background: var(--tag-bg); border-color: var(--accent); color: var(--accent); }
+#mode-label { color: var(--text2); }
+
+/* LAYOUT */
+.app-layout { max-width: 1400px; margin: 0 auto; display: grid; grid-template-columns: 260px 1fr; gap: 0; min-height: calc(100vh - 120px); }
+.sidebar { background: var(--bg2); border-right: 1px solid var(--card-border); padding: 1rem; position: sticky; top: 0; height: calc(100vh - 120px); overflow-y: auto; }
+.main { padding: 1rem 1.25rem; }
+
+/* ACTIVE FILTERS BAR */
+#active-filters { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 0.875rem; min-height: 0; }
+.active-tag { display: inline-flex; align-items: center; gap: 0.3rem; background: var(--tag-bg); border: 1px solid var(--accent2); border-radius: 20px; padding: 2px 10px 2px 8px; font-size: 12px; color: var(--accent); }
+.active-tag button { background: none; border: none; color: var(--accent); padding: 0; font-size: 14px; line-height: 1; }
+#clear-all { background: none; border: 1px solid var(--card-border); border-radius: 20px; padding: 2px 10px; font-size: 12px; color: var(--text3); }
+#clear-all:hover { border-color: var(--accent); color: var(--accent); }
+
+/* RESULTS BAR */
+.results-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; }
+.results-count { font-size: 13px; color: var(--text3); }
+.results-count strong { color: var(--text2); }
+.sort-wrap { display: flex; align-items: center; gap: 0.5rem; font-size: 13px; color: var(--text3); }
+.sort-wrap select { background: var(--bg3); border: 1px solid var(--card-border); border-radius: var(--radius); padding: 4px 8px; color: var(--text2); font-size: 12px; cursor: pointer; }
+
+/* SIDEBAR SECTIONS */
+.filter-section { margin-bottom: 1.25rem; }
+.filter-title { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text3); margin-bottom: 0.5rem; padding-bottom: 0.4rem; border-bottom: 1px solid var(--card-border); }
+.filter-options { display: flex; flex-direction: column; gap: 2px; }
+.filter-opt { display: flex; align-items: center; gap: 0.5rem; padding: 4px 6px; border-radius: 5px; cursor: pointer; transition: background var(--transition); font-size: 13px; color: var(--text2); user-select: none; }
+.filter-opt:hover { background: var(--bg3); }
+.filter-opt input { accent-color: var(--accent); }
+.pmesii-badge { display: inline-block; width: 52px; padding: 1px 6px; border-radius: 3px; font-size: 11px; font-weight: 600; text-align: center; }
+.cat-badge { display: inline-block; padding: 1px 6px; border-radius: 3px; font-size: 11px; font-weight: 600; }
+.filter-search { width: 100%; background: var(--bg3); border: 1px solid var(--card-border); border-radius: 5px; padding: 4px 8px; color: var(--text); font-size: 12px; margin-bottom: 0.4rem; outline: none; }
+.filter-search:focus { border-color: var(--accent); }
+.year-filter, .week-filter { width: 100%; background: var(--bg3); border: 1px solid var(--card-border); border-radius: 5px; padding: 4px 8px; color: var(--text); font-size: 12px; margin-bottom: 0.4rem; cursor: pointer; outline: none; }
+.year-filter:focus, .week-filter:focus { border-color: var(--accent); }
+
+/* POST CARDS */
+.post-grid { display: flex; flex-direction: column; gap: 0.75rem; }
+.post-card { background: var(--card); border: 1px solid var(--card-border); border-radius: var(--radius-lg); padding: 1rem 1.125rem; transition: border-color var(--transition), transform var(--transition); }
+.post-card:hover { border-color: var(--accent2); transform: translateY(-1px); }
+.card-meta-top { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; flex-wrap: wrap; }
+.card-date { font-size: 12px; color: var(--text3); }
+.card-week { font-size: 11px; color: var(--text3); background: var(--bg3); padding: 1px 6px; border-radius: 3px; }
+.card-title { font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 0.4rem; line-height: 1.4; }
+.card-title a { color: var(--text); }
+.card-title a:hover { color: var(--accent); text-decoration: none; }
+.card-summary { font-size: 13px; color: var(--text2); line-height: 1.55; margin-bottom: 0.65rem; }
+.card-tags { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-bottom: 0.5rem; }
+.card-footer { display: flex; align-items: center; justify-content: space-between; }
+.card-countries { font-size: 11px; color: var(--text3); }
+.card-links { display: flex; gap: 0.6rem; }
+.card-links a { font-size: 12px; color: var(--text3); padding: 2px 6px; border: 1px solid var(--card-border); border-radius: 4px; transition: all var(--transition); }
+.card-links a:hover { border-color: var(--accent); color: var(--accent); text-decoration: none; }
+
+/* PMESII TAGS */
+.tag-P { background: var(--pmesii-P-bg); color: var(--pmesii-P); }
+.tag-M { background: var(--pmesii-M-bg); color: var(--pmesii-M); }
+.tag-E { background: var(--pmesii-E-bg); color: var(--pmesii-E); }
+.tag-S { background: var(--pmesii-S-bg); color: var(--pmesii-S); }
+.tag-INFO { background: var(--pmesii-INFO-bg); color: var(--pmesii-INFO); }
+.tag-INFRA { background: var(--pmesii-INFRA-bg); color: var(--pmesii-INFRA); }
+.tag { display: inline-flex; align-items: center; border-radius: 4px; padding: 1px 7px; font-size: 11px; font-weight: 600; letter-spacing: 0.03em; }
+
+/* CATEGORY TAGS */
+.cat { display: inline-flex; align-items: center; border-radius: 4px; padding: 1px 7px; font-size: 11px; font-weight: 500; }
+.cat-HYBRID { background: #2a1540; color: #c084fc; }
+.cat-MIL { background: #3a1010; color: #f87171; }
+.cat-INFRA { background: #2e1800; color: #fb923c; }
+.cat-INTEL { background: #0d2038; color: #60a5fa; }
+.cat-DRONE { background: #0d2e2a; color: #34d399; }
+.cat-TERROR { background: #3a0a0a; color: #fca5a5; }
+.cat-NUCLEAR { background: #2e1f00; color: #fbbf24; }
+.cat-MAR { background: #0a2038; color: #38bdf8; }
+.cat-GPS { background: #0d2e18; color: #4ade80; }
+.cat-POLICY { background: #1e0d38; color: #a78bfa; }
+.cat-LEGAL { background: #1e2028; color: #94a3b8; }
+
+/* PAGINATION */
+.pagination { display: flex; justify-content: center; gap: 0.4rem; margin-top: 1.25rem; padding-bottom: 2rem; }
+.page-btn { background: var(--bg3); border: 1px solid var(--card-border); border-radius: var(--radius); padding: 6px 12px; color: var(--text2); font-size: 13px; transition: all var(--transition); }
+.page-btn.active { background: var(--accent2); border-color: var(--accent); color: #fff; }
+.page-btn:hover:not(.active) { border-color: var(--accent); color: var(--accent); }
+.page-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* EMPTY STATE */
+.empty-state { text-align: center; padding: 3rem 1rem; color: var(--text3); }
+.empty-state h3 { font-size: 16px; color: var(--text2); margin-bottom: 0.5rem; }
+
+/* EMBED MODE */
+body.embed-mode #site-header .header-links { display: none; }
+body.embed-mode .sidebar { display: none; }
+body.embed-mode .app-layout { grid-template-columns: 1fr; }
+body.embed-mode .embed-open-btn { display: flex !important; }
+.embed-open-btn { display: none; position: fixed; bottom: 1rem; right: 1rem; background: var(--accent2); color: #fff; border: none; border-radius: var(--radius); padding: 8px 14px; font-size: 13px; font-weight: 500; gap: 0.4rem; align-items: center; box-shadow: 0 2px 12px rgba(0,0,0,0.4); }
+.embed-open-btn:hover { background: var(--accent); }
+
+/* MODAL */
+.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 100; align-items: flex-start; justify-content: center; padding: 2rem 1rem; overflow-y: auto; }
+.modal-overlay.open { display: flex; }
+.modal { background: var(--bg2); border: 1px solid var(--card-border); border-radius: var(--radius-lg); max-width: 720px; width: 100%; padding: 1.5rem; position: relative; }
+.modal-close { position: absolute; top: 1rem; right: 1rem; background: none; border: none; color: var(--text3); font-size: 20px; }
+.modal h2 { font-size: 18px; color: var(--text); margin-bottom: 0.5rem; }
+.modal-date { font-size: 13px; color: var(--text3); margin-bottom: 1rem; }
+.modal-summary { color: var(--text2); margin-bottom: 1rem; line-height: 1.65; }
+.modal-section { margin-top: 1rem; padding-top: 0.75rem; border-top: 1px solid var(--card-border); }
+.modal-section-title { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text3); margin-bottom: 0.4rem; }
+.modal-tags { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+.modal-meta-row { display: flex; gap: 1rem; font-size: 13px; color: var(--text2); margin-top: 0.5rem; flex-wrap: wrap; }
+.modal-meta-row span { color: var(--text3); }
+.modal-sources { list-style: none; }
+.modal-sources li { font-size: 13px; }
+.modal-sources li + li { margin-top: 0.25rem; }
+.modal-actions { display: flex; gap: 0.75rem; margin-top: 1.25rem; flex-wrap: wrap; }
+.btn-primary { background: var(--accent2); color: #fff; border: none; border-radius: var(--radius); padding: 7px 16px; font-size: 13px; font-weight: 500; }
+.btn-primary:hover { background: var(--accent); }
+.btn-secondary { background: none; color: var(--text2); border: 1px solid var(--card-border); border-radius: var(--radius); padding: 7px 16px; font-size: 13px; }
+.btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+
+/* MOBILE */
+.mobile-filter-toggle { display: none; }
+@media (max-width: 900px) {
+  .app-layout { grid-template-columns: 1fr; }
+  .sidebar { position: static; height: auto; display: none; }
+  .sidebar.open { display: block; }
+  .mobile-filter-toggle { display: flex; align-items: center; gap: 0.5rem; background: var(--bg3); border: 1px solid var(--card-border); border-radius: var(--radius); padding: 6px 12px; font-size: 13px; color: var(--text2); margin-bottom: 0.75rem; }
+  .header-links { display: none; }
+  .header-inner { flex-wrap: wrap; }
+  .header-search { max-width: 100%; width: 100%; }
+}
+@media (max-width: 600px) {
+  .main { padding: 0.75rem; }
+  .sidebar { padding: 0.75rem; }
+  .modal { padding: 1rem; }
+}
+</style>
+</head>
+<body>
+
+<header id="site-header">
+  <div class="header-inner">
+    <div class="logo">
+      <div class="logo-mark">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8zm-1-5h2v2h-2zm0-8h2v6h-2z"/></svg>
+      </div>
+      <div class="logo-text">
+        <div class="logo-title">Svensk OSINT</div>
+        <div class="logo-sub">Sökbart inläggsarkiv</div>
+      </div>
+    </div>
+    <div class="header-search">
+      <div class="search-wrap">
+        <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="search" id="search-input" placeholder="Sök aktörer, händelser, länder, platser…" autocomplete="off" spellcheck="false">
+        <button class="search-clear" id="search-clear" aria-label="Rensa sökning">✕</button>
+      </div>
+    </div>
+    <nav class="header-links">
+      <a href="https://veckobrevskartan.github.io/tidslinjen/" target="_blank" rel="noopener noreferrer">Tidslinje</a>
+      <a href="https://veckobrevskartan.github.io/veckobrevskartan/" target="_blank" rel="noopener noreferrer">Karta</a>
+      <a href="https://www.linkedin.com/company/svensk-osint" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+    </nav>
+  </div>
+</header>
+
+<div class="search-mode">
+  <div class="search-mode-inner">
+    <span id="mode-label">Sökläge:</span>
+    <button class="mode-btn active" data-mode="AND" id="mode-AND">Alla ord (AND)</button>
+    <button class="mode-btn" data-mode="OR" id="mode-OR">Minst ett (OR)</button>
+    <button class="mode-btn" data-mode="PHRASE" id="mode-PHRASE">Exakt fras</button>
+    <span style="margin-left:auto;font-size:11px;">Tips: <code style="background:var(--bg3);padding:1px 5px;border-radius:3px;">-ord</code> utesluter, <code style="background:var(--bg3);padding:1px 5px;border-radius:3px;">"fras"</code> = exakt</span>
+  </div>
+</div>
+
+<div class="app-layout">
+  <aside class="sidebar" id="sidebar">
+    <button class="mobile-filter-toggle" id="mobile-filter-close" style="margin-bottom:0.75rem;">✕ Stäng filter</button>
+
+    <div class="filter-section">
+      <div class="filter-title">PMESII</div>
+      <div style="display:flex;gap:0.4rem;margin-bottom:0.4rem;">
+        <button class="mode-btn" id="pmesii-and-btn" data-pmesii-mode="AND" style="font-size:11px;padding:2px 8px;">Alla</button>
+        <button class="mode-btn active" id="pmesii-or-btn" data-pmesii-mode="OR" style="font-size:11px;padding:2px 8px;">Något</button>
+      </div>
+      <div class="filter-options" id="pmesii-filters"></div>
+    </div>
+
+    <div class="filter-section">
+      <div class="filter-title">Kategori</div>
+      <div class="filter-options" id="category-filters"></div>
+    </div>
+
+    <div class="filter-section">
+      <div class="filter-title">År</div>
+      <select class="year-filter" id="year-filter">
+        <option value="">Alla år</option>
+        <option value="2025">2025</option>
+        <option value="2026">2026</option>
+      </select>
+    </div>
+
+    <div class="filter-section">
+      <div class="filter-title">ISO-vecka</div>
+      <select class="week-filter" id="week-filter">
+        <option value="">Alla veckor</option>
+      </select>
+    </div>
+
+    <div class="filter-section">
+      <div class="filter-title">Land</div>
+      <input type="search" class="filter-search" id="country-search" placeholder="Filtrera länder…">
+      <div class="filter-options" id="country-filters"></div>
+    </div>
+
+    <div class="filter-section">
+      <div class="filter-title">Organisation</div>
+      <input type="search" class="filter-search" id="org-search" placeholder="Filtrera organisationer…">
+      <div class="filter-options" id="org-filters"></div>
+    </div>
+
+    <div class="filter-section">
+      <div class="filter-title">Person</div>
+      <input type="search" class="filter-search" id="person-search" placeholder="Filtrera personer…">
+      <div class="filter-options" id="person-filters"></div>
+    </div>
+
+    <div class="filter-section">
+      <div class="filter-title">Innehållstyp</div>
+      <div class="filter-options">
+        <label class="filter-opt"><input type="checkbox" id="filter-timeline" value="timeline"> På tidslinje</label>
+        <label class="filter-opt"><input type="checkbox" id="filter-map" value="map"> På karta</label>
+        <label class="filter-opt"><input type="checkbox" id="filter-linkedin" value="linkedin"> Har LinkedIn-länk</label>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <button class="mobile-filter-toggle" id="mobile-filter-open">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/></svg>
+      Visa filter
+    </button>
+
+    <div id="active-filters"></div>
+
+    <div class="results-bar">
+      <div class="results-count" id="results-count"></div>
+      <div class="sort-wrap">
+        Sortera:
+        <select id="sort-select">
+          <option value="relevance">Relevans</option>
+          <option value="newest" selected>Nyast</option>
+          <option value="oldest">Äldst</option>
+          <option value="title">Titel A–Z</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="post-grid" id="post-grid"></div>
+    <div class="pagination" id="pagination"></div>
+  </main>
+</div>
+
+<button class="embed-open-btn" onclick="window.open(location.href.replace('?embed=1',''), '_blank')">
+  ↗ Öppna arkivet i ny flik
+</button>
+
+<div class="modal-overlay" id="post-modal">
+  <div class="modal">
+    <button class="modal-close" id="modal-close" aria-label="Stäng">✕</button>
+    <div id="modal-content"></div>
+  </div>
+</div>
+
+<script>
+const POSTS = [{"id":"2026-05-18-ryssland-och-kina-genomfor-gemensam-arktisk-patrull-med-bomb","slug":"2026-05-18-ryssland-och-kina-genomfor-gemensam-arktisk-patrull-med-bomb","title":"Ryssland och Kina genomför gemensam arktisk patrull med bombare","summary":"Analys och rapportering om ryssland relaterat till Ryssland och dess konsekvenser för regional säkerhet och stabilitet.","body":null,"published":"2026-05-18","updated":null,"isoYear":2026,"isoWeek":21,"pmesii":["M"],"categories":["MIL","MAR"],"keywords":["Ryssland","Kina","Arktis","patrull","bombare"],"countries":["Ryssland","Kina"],"places":[{"name":"Murmansk","country":"Ryssland","latitude":68.9585,"longitude":33.0827}],"persons":[],"organisations":[],"sources":[{"name":"Öppen källanalys","url":"https://veckobrevskartan.github.io/"}],"linkedinUrl":"https://www.linkedin.com/in/joelosint/detail/recent-activity/shares/","imageUrl":null,"timeline":false,"map":true,"newsletter":"2026-W21","language":"sv"},{"id":"2026-05-14-okad-frekvens-av-cyberattacker-mot-skandinavisk-sjofartssekt","slug":"2026-05-14-okad-frekvens-av-cyberattacker-mot-skandinavisk-sjofartssekt","title":"Ökad frekvens av cyberattacker mot skandinavisk sjöfartssektor","summary":"Analys och rapportering om skandinavien relaterat till Sverige och dess konsekvenser för regional säkerhet och stabilitet.","body":null,"published":"2026-05-14","updated":null,"isoYear":2026,"isoWeek":20,"pmesii":["INFRA","INFO"],"categories":["INFRA","HYBRID"],"keywords":["Skandinavien","sjöfart","cyberattack","sektor","NCSC"],"countries":["Sverige","Norge","Danmark"],"places":[{"name":"Oslo","country":"Norge","latitude":59.9139,"longitude":10.7522}],"persons":[],"organisations":[],"sources":[{"name":"Öppen källanalys","url":"https://veckobrevskartan.github.io/"}],"linkedinUrl":"https://www.linkedin.com/in/joelosint/detail/recent-activity/shares/","imageUrl":null,"timeline":true,"map":true,"newsletter":"2026-W20","language":"sv"},{"id":"2026-05-07-ukrainska-specialstyrkor-genomfor-operation-bakom-ryska-linj","slug":"2026-05-07-ukrainska-specialstyrkor-genomfor-operation-bakom-ryska-linj","title":"Ukrainska specialstyrkor genomför operation bakom ryska linjer i Kursk","summary":"Analys och rapportering om ukraina relaterat till Ukraina och dess konsekvenser för regional säkerhet och stabilitet.","body":null,"published":"2026-05-07","updated":null,"isoYear":2026,"isoWeek":19,"pmesii":["M"],"categories":["MIL"],"keywords":["Ukraina","Ryssland","Kursk","specialstyrkor","operation"],"countries":["Ukraina","Ryssland"],"places":[{"name":"Kursk","country":"Ryssland","latitude":51.7373,"longitude":36.1873}],"persons":[],"organisations":[],"sources":[{"name":"Öppen källanalys","url":"https://veckobrevskartan.github.io/"}],"linkedinUrl":"https://www.linkedin.com/in/joelosint/detail/recent-activity/shares/","imageUrl":null,"timeline":false,"map":true,"newsletter":"2026-W19","language":"sv"},{"id":"2026-05-06-fn-s-sakerhetsrad-misslyckas-enas-om-resolution-om-nordkorea","slug":"2026-05-06-fn-s-sakerhetsrad-misslyckas-enas-om-resolution-om-nordkorea","title":"FN:s säkerhetsråd misslyckas enas om resolution om Nordkoreas missiltester","summary":"Analys och rapportering om fn relaterat till Nordkorea och dess konsekvenser för regional säkerhet och stabilitet.","body":null,"published":"2026-05-06","updated":null,"isoYear":2026,"isoWeek":19,"pmesii":["M","P"],"categories":["POLICY","NUCLEAR"],"keywords":["FN","Nordkorea","missil","resolution","veto"],"countries":["Nordkorea","Kina","USA"],"places":[{"name":"New York","country":"USA","latitude":40.7128,"longitude":-74.006}],"persons":[],"organisations":[],"sources":[{"name":"Öppen källanalys","url":"https://veckobrevskartan.github.io/"}],"linkedinUrl":"https://www.linkedin.com/in/joelosint/detail/recent-activity/shares/","imageUrl":null,"timeline":true,"map":true,"newsletter":"2026-W19","language":"sv"},{"id":"2026-04-29-estland-och-litauen-kopplar-ner-fran-brell-natverket-natinte","slug":"2026-04-29-estland-och-litauen-kopplar-ner-fran-brell-natverket-natinte","title":"Estland och Litauen kopplar ner från BRELL-nätverket – nätintegrering slutförd","summary":"Analys och rapportering om brell relaterat till Estland och dess konsekvenser för regional säkerhet och stabilitet.","body":null,"published":"2026-04-29","updated":null,"isoYear":2026,"isoWeek":18,"pmesii":["E","INFRA","P"],"categories":["INFRA","POLICY"],"keywords":["BRELL","Estland","Litauen","elnät","EU-integrering"],"countries":["Estland","Litauen","EU","Ryssland"],"places":[{"name":"Tallinn","country":"Estland","latitude":59.437,"longitude":24.7536}],"persons":[],"organisations":[],"sources":[{"name":"Öppen källanalys","url":"https://veckobrevskartan.github.io/"}],"linkedinUrl":"https://www.linkedin.com/in/joelosint/detail/recent-activity/shares/","imageUrl":null,"timeline":true,"map":true,"newsletter":"2026-W18","language":"sv"},{"id":"2026-04-25-belgisk-domstol-atalar-pensionerade-nato-tjansteman-for-spio","slug":"2026-04-25-belgisk-domstol-atalar-pensionerade-nato-tjansteman-for-spio","title":"Belgisk domstol åtalar pensionerade NATO-tjänsteman för spionage för Kina","summary":"Analys och rapportering om belgien relaterat till Belgien och dess konsekvenser för regional säkerhet och stabilitet.","body":null,"published":"2026-04-25","updated":null,"isoYear":2026,"isoWeek":17,"pmesii":["P","INFO"],"categories":["INTEL","LEGAL"],"keywords":["Belgien","NATO","Kina","spionage","åtal"],"countries":["Belgien","Kina"],"places":[{"name":"Bryssel","country":"Belgien","latitude":50.8503,"longitude":4.3517}],"persons":[],"organisations":[],"sources":[{"name":"Öppen källanalys","url":"https://veckobrevskartan.github.io/"}],"linkedinUrl":"https://www.linkedin.com/in/joelosint/detail/recent-activity/shares/","imageUrl":null,"timeline":true,"map":true,"newsletter":"2026-W17","language":"sv"},{"id":"2026-04-23-spanien-identifierar-ryskstodd-desinformationskampanj-mot-ka","slug":"2026-04-23-spanien-identifierar-ryskstodd-desinformationskampanj-mot-ka","title":"Spanien identifierar ryskstödd desinformationskampanj mot Katalonien","summary":"Analys och rapportering om spanien relaterat till Spanien och dess konsekvenser för regional säkerhet och stabilitet.","body":null,"published":"2026-04-23","updated":null,"isoYear":2026,"isoWeek":17,"pmesii":["INFO","P"],"categories":["HYBRID"],"keywords":["Spanien","Ryssland","Katalonien","desinformation","kampanj"],"countries":["Spanien","Ryssland"],"places":[{"name":"Madrid","country":"Spanien","latitude":40.4168,"longitude":-3.7038}],"persons":[],"organisations":[],"sources":[{"name":"Öppen källanalys","url":"https://veckobrevskartan.github.io/"}],"linkedinUrl":"https://www.linkedin.com/in/joelosint/detail/recent-activity/shares/","imageUrl":null,"timeline":false,"map":true,"newsletter":"2026-W17","language":"sv"},{"id":"2026-04-18-ny-militarallians-mellan-etiopien-och-eritrea-stor-horn-av-a","slug":"2026-04-18-ny-militarallians-mellan-etiopien-och-eritrea-stor-horn-av-a","title":"Ny militärallians mellan Etiopien och Eritrea stör Horn av Afrika-balansen","summary":"Analys och rapportering om etiopien relaterat till Etiopien och dess konsekvenser för regional säkerhet och stabilitet.","body":null,"published":"2026-04-18","updated":null,"isoYear":2026,"isoWeek":16,"pmesii":["M","P"],"categories":["MIL","POLICY"],"keywords":["Etiopien","Eritrea","allians","Horn av Afrika","balans"],"countries":["Etiopien","Eritrea"],"places":[{"name":"Addis Abeba","country":"Etiopien","latitude":9.032,"longitude":38.7469}],"persons":[],"organisations":[],"sources":[{"name":"Öppen källanalys","url":"https://veckobrevskartan.github.io/"}],"linkedinUrl":"https://www.linkedin.com/in/joelosint/detail/recent-activity/shares/","imageUrl":null,"timeline":true,"map":true,"newsletter":"2026-W16","language":"sv"},{"id":"2026-04-16-azerbajdzjan-stanger-armenisk-korridor-humanitart-lage-forsa","slug":"2026-04-16-azerbajdzjan-stanger-armenisk-korridor-humanitart-lage-forsa","title":"Azerbajdzjan stänger armenisk korridor – humanitärt läge försämras","summary":"Analys och rapportering om azerbajdzjan relaterat till Azerbajdzjan och dess konsekvenser för regional säkerhet och stabilitet.","body":null,"published":"2026-04-16","updated":null,"isoYear":2026,"isoWeek":16,"pmesii":["P","S"],"categories":["POLICY"],"keywords":["Azerbajdzjan","Armenien","korridor","humanitär","blockad"],"countries":["Azerbajdzjan","Armenien"],"places":[{"name":"Baku","country":"Azerbajdzjan","latitude":40.4093,"longitude":49.8671}],"persons":[],"organisations":[],"sources":[{"name":"Öppen källanalys","url":"https://veckobrevskartan.github.io/"}],"linkedinUrl":"https://www.linkedin.com/in/joelosint/detail/recent-activity/shares/","imageUrl":null,"timeline":true,"map":true,"newsletter":"2026-W16","language":"sv"},{"id":"2026-04-10-kina-skickar-marinkrigsskepp-till-persiska-viken-under-hormu","slug":"2026-04-10-kina-skickar-marinkrigsskepp-till-persiska-viken-under-hormu","title":"Kina skickar marinkrigsskepp till Persiska viken under Hormuz-krisen","summary":"Analys och rapportering om kina relaterat till Kina och dess konsekvenser för regional säkerhet och stabilitet.","body":null,"published":"2026-04-10","updated":null,"isoYear":2026,"isoWeek":15,"pmesii":["M"],"categories":["MAR","MIL"],"keywords":["Kina","Persiska viken","örlogsfartyg","Hormuz","PLAN"],"countries":["Kina","Iran"],"places":[{"name":"Hormuz","country":"Iran","latitude":26.5775,"longitude":56.2614}],"persons":[],"organisations":[],"sources":[{"name":"Öppen källanalys","url":"https://veckobrevskartan.github.io/"}],"linkedinUrl":"https://www.linkedin.com/in/joelosint/detail/recent-activity/shares/","imageUrl":null,"timeline":true,"map":true,"newsletter":"2026-W15","language":"sv"},{"id":"2026-04-06-rysk-flotta-genomfor-oanmald-ovning-utanfor-svalbard","slug":"2026-04-06-rysk-flotta-genomfor-oanmald-ovning-utanfor-svalbard","title":"Rysk flotta genomför oanmäld övning utanför Svalbard","summary":"Analys och rapportering om ryssland relaterat till Ryssland och dess konsekvenser för regional säkerhet och stabilitet.","body":null,"published":"2026-04-06","updated":null,"isoYear":2026,"isoWeek":15,"pmesii":["M"],"categories":["MAR","MIL"],"keywords":["Ryssland","Svalbard","flotta","övning","Arktis"],"countries":["Ryssland","Norge"],"places":[{"name":"Svalbard","country":"Norge","latitude":78.2232,"longitude":15.6267}],"persons":[],"organisations":[],"sources":[{"name":"Öppen källanalys","url":"https://veckobrevskartan.github.io/"}],"linkedinUrl":"https://www.linkedin.com/in/joelosint/detail/recent-activity/shares/","imageUrl":null,"timeline":true,"map":true,"newsletter":"2026-W15","language":"sv"},{"id":"2026-04-01-nytt-ai-verktyg-for-desinformationsdetektering-testas-av-eu-","slug":"2026-04-01-nytt-ai-verktyg-for-desinformationsdetektering-testas-av-eu-","title":"Nytt AI-verktyg för desinformationsdetektering testas av EU:s EEAS","summary":"Analys och rapportering om eu relaterat till EU och dess konsekvenser för regional säkerhet och stabilitet.","body":null,"published":"2026-04-01","updated":null,"isoYear":2026,"isoWeek":14,"pmesii":["INFO"],"categories":["POLICY","HYBRID"],"keywords":["EU","EEAS","AI","desinformation","detektion"],"countries":["EU"],"places":[{"name":"Bryssel","country":"Belgien","latitude":50.8503,"longitude":4.3517}],"persons":[],"organisations":[],"sources":[{"name":"Öppen källanalys","url":"https://veckobrevskartan.github.io/"}],"linkedinUrl":"https://www.linkedin.com/in/joelosint/detail/recent-activity/shares/","imageUrl":null,"timeline":true,"map":true,"newsletter":"2026-W14","language":"sv"},{"id":"2026-03-31-tjeckien-stanger-rysk-underrattelsestation-maskerad-som-hand","slug":"2026-03-31-tjeckien-stanger-rysk-underrattelsestation-maskerad-som-hand","title":"Tjeckien stänger rysk underrättelsestation maskerad som handelsrepresentation","summary":"Analys och rapportering om tjeckien relaterat till Tjeckien och dess konsekvenser för regional säkerhet och stabilitet.","body":null,"published":"2026-03-31","updated":null,"isoYear":2026,"isoWeek":14,"pmesii":["P","INFO"],"categories":["INTEL","POLICY"],"keywords":["Tjeckien","Ryssland","underrättelsestation","BIS","utvisning"],"countries":["Tjeckien","Ryssland"],"places":[{"name":"Prag","country":"Tjeckien","latitude":50.0755,"longitude":14.4378}],"persons":[],"organisations":[],"sources":[{"name":"Öppen källanalys","url":"https://veckobrevskartan.github.io/"}],"linkedinUrl":"https://www.linkedin.com/in/joelosint/detail/recent-activity/shares/","imageUrl":null,"timeline":false,"map":true,"newsletter":"2026-W14","language":"sv"},{"id":"2026-03-24-houthi-dronare-med-okad-rackvidd-driftsatta-trubbel-for-roda","slug":"2026-03-24-houthi-dronare-med-okad-rackvidd-driftsatta-trubbel-for-roda","title":"Houthi-drönare med ökad räckvidd driftsatta – trubbel för röda havet-sjöfarten","summary":"Analys och rapportering om houthi relaterat till Jemen och dess konsekvenser för regional säkerhet och stabilitet.","body":null,"published":"2026-03-24","updated":null,"isoYear":2026,"isoWeek":13,"pmesii":["M","E"],"categories":["DRONE","MAR"],"keywords":["Houthi","drönare","röda havet","sjöfart","räckvidd"],"countries":["Jemen","Houthi"],"places":[{"name":"Sanaa","country":"Jemen","latitude":15.3694,"longitude":44.191}],"persons":[],"organisations":[],"sources":[{"name":"Öppen källanalys","url":"https://veckobrevskartan.github.io/"}],"linkedinUrl":"https://www.linkedin.com/in/joelosint/detail/recent-activity/shares/","imageUrl":null,"timeline":true,"map":true,"newsletter":"2026-W13","language":"sv"},{"id":"2026-03-20-tunisien-registrerar-ovanlig-mangd-forsok-till-olaglig-migra","slug":"2026-03-20-tunisien-registrerar-ovanlig-mangd-forsok-till-olaglig-migra","title":"Tunisien registrerar ovanlig mängd försök till olaglig migration mot Sardinien","summary":"Analys och rapportering om tunisien relaterat till Tunisien och dess konsekvenser för regional säkerhet och stabilitet.","body":null,"published":"2026-03-20","updated":null,"isoYear":2026,"isoWeek":12,"pmesii":["S","P"],"categories":["POLICY"],"keywords":["Tunisien","migration","Sardinien","Italien","migration"],"countries":["Tunisien","Italien"],"places":[{"name":"Tunis","country":"Tunisien","latitude":36.8065,"longitude":10.1815}],"persons":[],"organisations":[],"sources":[{"name":"Öppen källanalys","url":"https://veckobrevskartan.github.io/"}],"linkedinUrl":"https://www.linkedin.com/in/joelosint/detail/recent-activity/shares/","imageUrl":null,"timeline":true,"map":true,"newsletter":"2026-W12","language":"sv"},{"id":"2026-03-18-frankrike-och-tyskland-inleder-gemensam-cyberskyddsenhet-for","slug":"2026-03-18-frankrike-och-tyskland-inleder-gemensam-cyberskyddsenhet-for","title":"Frankrike och Tyskland inleder gemensam cyberskyddsenhet för kritisk infrastruktur","summary":"Analys och rapportering om frankrike relaterat till Frankrike och dess konsekvenser för regional säkerhet och stabilitet.","body":null,"published":"2026-03-18","updated":null,"isoYear":2026,"isoWeek":12,"pmesii":["INFO","INFRA"],"categories":["POLICY","INFRA"],"keywords":["Frankrike","Tyskland","cyberskydd","infrastruktur","samarbete"],"countries":["Frankrike","Tyskland"],"places":[{"name":"Paris","country":"Frankrike","latitude":48.8566,"longitude":2.3522}],"persons":[],"organisations":[],"sources":[{"name":"Öppen källanalys","url":"https://veckobrevskartan.github.io/"}],"linkedinUrl":"https://www.linkedin.com/in/joelosint/detail/recent-activity/shares/","imageUrl":null,"timeline":false,"map":true,"newsletter":"2026-W12","language":"sv"},{"id":"2026-03-15-cyberangrepp-mot-eu-parlamentets-natverk-under-toppmotesforb","slug":"2026-03-15-cyberangrepp-mot-eu-parlamentets-natverk-under-toppmotesforb","title":"Cyberangrepp mot EU-parlamentets nätverk under toppmötesförberedelser","summary":"Analys och rapportering om eu-parlamentet relaterat till Ryssland och dess konsekvenser för regional säkerhet och stabilitet.","body":null,"published":"2026-03-15","updated":null,"isoYear":2026,"isoWeek":11,"pmesii":["INFO","P"],"categories":["HYBRID","INTEL"],"keywords":["EU-parlamentet","cyberangrepp","toppmöte","Ryssland"],"countries":["Ryssland","EU"],"places":[{"name":"Bryssel","country":"Belgien","latitude":50.8503,"longitude":4.3517}],"persons":[],"organisations":[],"sources":[{"name":"Öppen källanalys","url":"https://veckobrevskartan.github.io/"}],"linkedinUrl":"https://www.linkedin.com/in/joelosint/detail/recent-activity/shares/","imageUrl":null,"timeline":false,"map":true,"newsletter":"2026-W11","language":"sv"},{"id":"2026-03-11-nya-satellitbilder-avslojar-utbyggnad-av-rysk-karnvapenanlag","slug":"2026-03-11-nya-satellitbilder-avslojar-utbyggnad-av-rysk-karnvapenanlag","title":"Nya satellitbilder avslöjar utbyggnad av rysk kärnvapenanläggning i Sibirien","summary":"Analys och rapportering om ryssland relaterat till Ryssland och dess konsekvenser för regional säkerhet och stabilitet.","body":null,"published":"2026-03-11","updated":null,"isoYear":2026,"isoWeek":11,"pmesii":["M"],"categories":["NUCLEAR","MIL"],"keywords":["Ryssland","kärnvapen","Sibirien","utbyggnad","satellitbild"],"countries":["Ryssland"],"places":[{"name":"Novosibirsk","country":"Ryssland","latitude":54.9885,"longitude":82.9207}],"persons":[],"organisations":[],"sources":[{"name":"Öppen källanalys","url":"https://veckobrevskartan.github.io/"}],"linkedinUrl":"https://www.linkedin.com/in/joelosint/detail/recent-activity/shares/","imageUrl":null,"timeline":true,"map":true,"newsletter":"2026-W11","language":"sv"},{"id":"2026-03-06-interpol-operation-hourglass-demonterar-internationellt-fent","slug":"2026-03-06-interpol-operation-hourglass-demonterar-internationellt-fent","title":"Interpol operation HOURGLASS demonterar internationellt fentanylnätverk","summary":"Analys och rapportering om interpol relaterat till Kina och dess konsekvenser för regional säkerhet och stabilitet.","body":null,"published":"2026-03-06","updated":null,"isoYear":2026,"isoWeek":10,"pmesii":["P","S"],"categories":["LEGAL","POLICY"],"keywords":["Interpol","fentanyl","narkotika","Kina","Mexiko"],"countries":["Kina","Mexiko","USA"],"places":[{"name":"Lyon","country":"Frankrike","latitude":45.764,"longitude":4.8357}],"persons":[],"organisations":[],"sources":[{"name":"Öppen källanalys","url":"https://veckobrevskartan.github.io/"}],"linkedinUrl":"https://www.linkedin.com/in/joelosint/detail/recent-activity/shares/","imageUrl":null,"timeline":false,"map":true,"newsletter":"2026-W10","language":"sv"},{"id":"2026-03-02-rysk-tankerfarkost-stannar-i-finlands-territorialvatten-inci","slug":"2026-03-02-rysk-tankerfarkost-stannar-i-finlands-territorialvatten-inci","title":"Rysk tankerfarkost stannar i Finlands territorialvatten – incidentrapport","summary":"Analys och rapportering om ryssland relaterat till Ryssland och dess konsekvenser för regional säkerhet och stabilitet.","body":null,"published":"2026-03-02","updated":null,"isoYear":2026,"isoWeek":10,"pmesii":["M","INFRA"],"categories":["MAR","HYBRID"],"keywords":["Ryssland","tankerfarkost","Finland","territorialvatten","skuggflotta"],"countries":["Ryssland","Finland"],"places":[{"name":"Helsingfors","country":"Finland","latitude":60.1699,"longitude":24.9384}],"persons":[],"organisations":[],"sources":[{"name":"Öppen källanalys","url":"https://veckobrevskartan.github.io/"}],"linkedinUrl":"https://www.linkedin.com/in/joelosint/detail/recent-activity/shares/","imageUrl":null,"timeline":false,"map":true,"newsletter":"2026-W10","language":"sv"},{"id":"2026-02-24-sverige-och-finland-inleder-gemensam-ubatsjakt-i-gotlandsdju","slug":"2026-02-24-sverige-och-finland-inleder-gemensam-ubatsjakt-i-gotlandsdju","title":"Sverige och Finland inleder gemensam ubåtsjakt i Gotlandsdjupet","summary":"Analys och rapportering om sverige relaterat till Sverige och dess konsekvenser för regional säkerhet och stabilitet.","body":null,"published":"2026-02-24","updated":null,"isoYear":2026,"isoWeek":9,"pmesii":["M"],"categories":["MAR","MIL"],"keywords":["Sverige","Finland","ubåt","Gotlandsdjupet","jakt"],"countries":["Sverige","Finland"],"places":[{"name":"Gotland","country":"Sverige","latitude":57.5,"longitude":18.5}],"persons":[],"organisations":[],"sources":[{"name":"Öppen källanalys","url":"https://veckobrevskartan.github.io/"}],"linkedinUrl":"https://www.linkedin.com/in/joelosint/detail/recent-activity/shares/","imageUrl":null,"timeline":true,"map":true,"newsletter":"2026-W09","language":"sv"},{"id":"2026-02-23-europadomstolen-domer-ryssland-for-brott-mot-genevekonventio","slug":"2026-02-23-europadomstolen-domer-ryssland-for-brott-mot-genevekonventio","title":"Europadomstolen dömer Ryssland för brott mot Genevekonventionen i Ukraina","summary":"Analys och rapportering om echr relaterat till Ryssland och dess konsekvenser för regional säkerhet och stabilitet.","body":null,"published":"2026-02-23","updated":null,"isoYear":2026,"isoWeek":9,"pmesii":["P"],"categories":["LEGAL","POLICY"],"keywords":["ECHR","Ryssland","Genevekonventionen","dom","krigsbrott"],"countries":["Ryssland","Ukraina"],"places":[{"name":"Strasbourg","country":"Frankrike","latitude":48.5734,"longitude":7.7521}],"persons":[],"organisations":[],"sources":[{"name":"Öppen källanalys","url":"https://veckobrevskartan.github.io/"}],"linkedinUrl":"https://www.linkedin.com/in/joelosint/detail/recent-activity/shares/","imageUrl":null,"timeline":false,"map":true,"newsletter":"2026-W09","language":"sv"},{"id":"2026-02-16-ryssland-mobiliserar-ytterligare-150-000-soldater-tredje-mob","slug":"2026-02-16-ryssland-mobiliserar-ytterligare-150-000-soldater-tredje-mob","title":"Ryssland mobiliserar ytterligare 150 000 soldater – tredje mobiliseringsvågen","summary":"Analys och rapportering om ryssland relaterat till Ryssland och dess konsekvenser för regional säkerhet och stabilitet.","body":null,"published":"2026-02-16","updated":null,"isoYear":2026,"isoWeek":8,"pmesii":["M"],"categories":["MIL"],"keywords":["Ryssland","mobilisering","soldater","Ukraina"],"countries":["Ryssland","Ukraina"],"places":[{"name":"Moskva","country":"Ryssland","latitude":55.7558,"longitude":37.6173}],"persons":[],"organisations":[],"sources":[{"name":"Öppen källanalys","url":"https://veckobrevskartan.github.io/"}],"linkedinUrl":"https://www.linkedin.com/in/joelosint/detail/recent-activity/shares/","imageUrl":null,"timeline":true,"map":true,"newsletter":"2026-W08","language":"sv"},{"id":"2026-02-13-ny-lag-i-ungern-ger-underrattelsetjansten-vidgade-befogenhet","slug":"2026-02-13-ny-lag-i-ungern-ger-underrattelsetjansten-vidgade-befogenhet","title":"Ny lag i Ungern ger underrättelsetjänsten vidgade befogenheter mot NGOs","summary":"Analys och rapportering om ungern relaterat till Ungern och dess konsekvenser för regional säkerhet och stabilitet.","body":null,"published":"2026-02-13","updated":null,"isoYear":2026,"isoWeek":7,"pmesii":["P","S"],"categories":["POLICY","LEGAL"],"keywords":["Ungern","Orbán","NGO","underrättelsetjänst","lag"],"countries":["Ungern"],"places":[{"name":"Budapest","country":"Ungern","latitude":47.4979,"longitude":19.0402}],"persons":[],"organisations":[],"sources":[{"name":"Öppen källanalys","url":"https://veckobrevskartan.github.io/"}],"linkedinUrl":"https://www.linkedin.com/in/joelosint/detail/recent-activity/shares/","imageUrl":null,"timeline":false,"map":true,"newsletter":"2026-W07","language":"sv"},{"id":"2026-02-11-somaliland-forklarar-utokat-samarbete-med-taiwan-kina-reager","slug":"2026-02-11-somaliland-forklarar-utokat-samarbete-med-taiwan-kina-reager","title":"Somaliland förklarar utökat samarbete med Taiwan – Kina reagerar","summary":"Analys och rapportering om somaliland relaterat till Somaliland och dess konsekvenser för regional säkerhet och stabilitet.","body":null,"published":"2026-02-11","updated":null,"isoYear":2026,"isoWeek":7,"pmesii":["P"],"categories":["POLICY"],"keywords":["Somaliland","Taiwan","Kina","diplomatik","erkännande"],"countries":["Somaliland","Taiwan","Kina"],"places":[{"name":"Hargeisa","country":"Somaliland","latitude":9.56,"longitude":44.065}],"persons":[],"organisations":[],"sources":[{"name":"Öppen källanalys","url":"https://veckobrevskartan.github.io/"}],"linkedinUrl":"https://www.linkedin.com/in/joelosint/detail/recent-activity/shares/","imageUrl":null,"timeline":false,"map":true,"newsletter":"2026-W07","language":"sv"},{"id":"2026-02-04-forbundsrepubliken-inleder-utredning-av-rysk-infiltration-i-","slug":"2026-02-04-forbundsrepubliken-inleder-utredning-av-rysk-infiltration-i-","title":"Förbundsrepubliken inleder utredning av rysk infiltration i partipolitiken","summary":"Analys och rapportering om ryssland relaterat till Ryssland och dess konsekvenser för regional säkerhet och stabilitet.","body":null,"published":"2026-02-04","updated":null,"isoYear":2026,"isoWeek":6,"pmesii":["P","INFO"],"categories":["INTEL","HYBRID"],"keywords":["Ryssland","Tyskland","infiltration","parti","politisk påverkan"],"countries":["Ryssland","Tyskland"],"places":[{"name":"Berlin","country":"Tyskland","latitude":52.52,"longitude":13.405}],"persons":[],"organisations":[],"sources":[{"name":"Öppen källanalys","url":"https://veckobrevskartan.github.io/"}],"linkedinUrl":"https://www.linkedin.com/in/joelosint/detail/recent-activity/shares/","imageUrl":null,"timeline":false,"map":true,"newsletter":"2026-W06","language":"sv"},{"id":"2026-01-31-ukraina-infor-statlig-kontroll-av-utlandska-cybersakerhetsbo","slug":"2026-01-31-ukraina-infor-statlig-kontroll-av-utlandska-cybersakerhetsbo","title":"Ukraina inför statlig kontroll av utländska cybersäkerhetsbolag","summary":"Analys och rapportering om ukraina relaterat till Ukraina och dess konsekvenser för regional säkerhet och stabilitet.","body":null,"published":"2026-01-31","updated":null,"isoYear":2026,"isoWeek":5,"pmesii":["INFO","P"],"categories":["POLICY","LEGAL"],"keywords":["Ukraina","cybersäkerhet","lagstiftning","kontroll","utländsk"],"countries":["Ukraina"],"places":[{"name":"Kiev","country":"Ukraina","latitude":50.4501,"longitude":30.5234}],"persons":[],"organisations":[],"sources":[{"name":"Öppen källanalys","url":"https://veckobrevskartan.github.io/"}],"linkedinUrl":"https://www.linkedin.com/in/joelosint/detail/recent-activity/shares/","imageUrl":null,"timeline":false,"map":true,"newsletter":"2026-W05","language":"sv"},{"id":"2026-01-29-dronare-storer-heathrow-misstankt-probing-av-brittisk-luftru","slug":"2026-01-29-dronare-storer-heathrow-misstankt-probing-av-brittisk-luftru","title":"Drönare störer Heathrow – misstänkt probing av brittisk luftrumsövervakning","summary":"Analys och rapportering om heathrow relaterat till Storbritannien och dess konsekvenser för regional säkerhet och stabilitet.","body":null,"published":"2026-01-29","updated":null,"isoYear":2026,"isoWeek":5,"pmesii":["INFRA","INFO"],"categories":["DRONE","INFRA"],"keywords":["Heathrow","drönare","luftrum","störning","probing"],"countries":["Storbritannien"],"places":[{"name":"London","country":"Storbritannien","latitude":51.4775,"longitude":-0.4614}],"persons":[],"organisations":[],"sources":[{"name":"Öppen källanalys","url":"https://veckobrevskartan.github.io/"}],"linkedinUrl":"https://www.linkedin.com/in/joelosint/detail/recent-activity/shares/","imageUrl":null,"timeline":false,"map":true,"newsletter":"2026-W05","language":"sv"},{"id":"2026-01-25-norges-pst-inleder-husrannsakan-mot-anlaggning-misstankt-for","slug":"2026-01-25-norges-pst-inleder-husrannsakan-mot-anlaggning-misstankt-for","title":"Norges PST inleder husrannsakan mot anläggning misstänkt för kinesisk spionage","summary":"Analys och rapportering om pst relaterat till Norge och dess konsekvenser för regional säkerhet och stabilitet.","body":null,"published":"2026-01-25","updated":null,"isoYear":2026,"isoWeek":4,"pmesii":["INFO","M"],"categories":["INTEL"],"keywords":["PST","Norge","Kina","spionage","husrannsakan"],"countries":["Norge","Kina"],"places":[{"name":"Oslo","country":"Norge","latitude":59.9139,"longitude":10.7522}],"persons":[],"organisations":[],"sources":[{"name":"Öppen källanalys","url":"https://veckobrevskartan.github.io/"}],"linkedinUrl":"https://www.linkedin.com/in/joelosint/detail/recent-activity/shares/","imageUrl":null,"timeline":true,"map":true,"newsletter":"2026-W04","language":"sv"},{"id":"2026-01-19-ny-rand-rapport-rysk-formaga-till-landkrig-i-baltikum-unders","slug":"2026-01-19-ny-rand-rapport-rysk-formaga-till-landkrig-i-baltikum-unders","title":"Ny RAND-rapport: rysk förmåga till landkrig i Baltikum underskattas","summary":"Analys och rapportering om rand relaterat till Ryssland och dess konsekvenser för regional säkerhet och stabilitet.","body":null,"published":"2026-01-19","updated":null,"isoYear":2026,"isoWeek":4,"pmesii":["M"],"categories":["MIL"],"keywords":["RAND","Ryssland","Baltikum","landkrig","förmåga"],"countries":["Ryssland","NATO"],"places":[{"name":"Washington","country":"USA","latitude":38.9072,"longitude":-77.0369}],"persons":[],"organisations":[],"sources":[{"name":"Öppen källanalys","url":"https://veckobrevskartan.github.io/"}],"linkedinUrl":"https://www.linkedin.com/in/joelosint/detail/recent-activity/shares/","imageUrl":null,"timeline":false,"map":true,"newsletter":"2026-W04","language":"sv"},{"id":"2026-01-16-saudiarabien-och-iran-normaliserar-relationer-kina-formedlar","slug":"2026-01-16-saudiarabien-och-iran-normaliserar-relationer-kina-formedlar","title":"Saudiarabien och Iran normaliserar relationer – Kina förmedlar","summary":"Analys och rapportering om saudiarabien relaterat till Saudiarabien och dess konsekvenser för regional säkerhet och stabilitet.","body":null,"published":"2026-01-16","updated":null,"isoYear":2026,"isoWeek":3,"pmesii":["P","E"],"categories":["POLICY"],"keywords":["Saudiarabien","Iran","normalisering","Kina","medling"],"countries":["Saudiarabien","Iran","Kina"],"places":[{"name":"Peking","country":"Kina","latitude":39.9042,"longitude":116.4074}],"persons":[],"organisations":[],"sources":[{"name":"Öppen källanalys","url":"https://veckobrevskartan.github.io/"}],"linkedinUrl":"https://www.linkedin.com/in/joelosint/detail/recent-activity/shares/","imageUrl":null,"timeline":true,"map":true,"newsletter":"2026-W03","language":"sv"},{"id":"2026-01-12-bulgarien-avvisar-rysk-begaran-om-diplomatisk-immunitet-for-","slug":"2026-01-12-bulgarien-avvisar-rysk-begaran-om-diplomatisk-immunitet-for-","title":"Bulgarien avvisar rysk begäran om diplomatisk immunitet för FSB-officer","summary":"Analys och rapportering om bulgarien relaterat till Bulgarien och dess konsekvenser för regional säkerhet och stabilitet.","body":null,"published":"2026-01-12","updated":null,"isoYear":2026,"isoWeek":3,"pmesii":["P"],"categories":["INTEL","POLICY"],"keywords":["Bulgarien","Ryssland","FSB","diplomatisk immunitet"],"countries":["Bulgarien","Ryssland"],"places":[{"name":"Sofia","country":"Bulgarien","latitude":42.6977,"longitude":23.3219}],"persons":[],"organisations":[],"sources":[{"name":"Öppen källanalys","url":"https://veckobrevskartan.github.io/"}],"linkedinUrl":"https://www.linkedin.com/in/joelosint/detail/recent-activity/shares/","imageUrl":null,"timeline":false,"map":true,"newsletter":"2026-W03","language":"sv"},{"id":"2026-01-07-moldavien-rapporterar-rysk-informationspaverkan-mot-valet","slug":"2026-01-07-moldavien-rapporterar-rysk-informationspaverkan-mot-valet","title":"Moldavien rapporterar rysk informationspåverkan mot valet","summary":"Analys och rapportering om moldavien relaterat till Moldavien och dess konsekvenser för regional säkerhet och stabilitet.","body":null,"published":"2026-01-07","updated":null,"isoYear":2026,"isoWeek":2,"pmesii":["INFO","P"],"categories":["HYBRID","POLICY"],"keywords":["Moldavien","val","desinformation","Ryssland","påverkan"],"countries":["Moldavien","Ryssland"],"places":[{"name":"Chișinău","country":"Moldavien","latitude":47.0105,"longitude":28.8638}],"persons":[],"organisations":[],"sources":[{"name":"Öppen källanalys","url":"https://veckobrevskartan.github.io/"}],"linkedinUrl":"https://www.linkedin.com/in/joelosint/detail/recent-activity/shares/","imageUrl":null,"timeline":false,"map":true,"newsletter":"2026-W02","language":"sv"},{"id":"2026-01-05-kinesiska-dronare-kartlagger-taiwan-sundet-i-allt-storre-ska","slug":"2026-01-05-kinesiska-dronare-kartlagger-taiwan-sundet-i-allt-storre-ska","title":"Kinesiska drönare kartlägger Taiwan-sundet i allt större skala","summary":"Analys och rapportering om kina relaterat till Kina och dess konsekvenser för regional säkerhet och stabilitet.","body":null,"published":"2026-01-05","updated":null,"isoYear":2026,"isoWeek":2,"pmesii":["M","INFO"],"categories":["DRONE","MIL"],"keywords":["Kina","Taiwan","drönare","rekognosering","Taiwan-sundet"],"countries":["Kina","Taiwan"],"places":[{"name":"Taipei","country":"Taiwan","latitude":25.033,"longitude":121.5654}],"persons":[],"organisations":[],"sources":[{"name":"Öppen källanalys","url":"https://veckobrevskartan.github.io/"}],"linkedinUrl":"https://www.linkedin.com/in/joelosint/detail/recent-activity/shares/","imageUrl":null,"timeline":false,"map":true,"newsletter":"2026-W02","language":"sv"},{"id":"2026-01-02-nya-sanktioner-mot-rysk-lng-export-trader-i-kraft-effekt-pa-","slug":"2026-01-02-nya-sanktioner-mot-rysk-lng-export-trader-i-kraft-effekt-pa-","title":"Nya sanktioner mot rysk LNG-export träder i kraft – effekt på gaspriser","summary":"Analys och rapportering om ryssland relaterat till Ryssland och dess konsekvenser för regional säkerhet och stabilitet.","body":null,"published":"2026-01-02","updated":null,"isoYear":2026,"isoWeek":1,"pmesii":["E","P"],"categories":["POLICY","LEGAL"],"keywords":["Ryssland","LNG","sanktioner","gas","export"],"countries":["Ryssland","EU"],"places":[{"name":"Bryssel","country":"Belgien","latitude":50.8503,"longitude":4.3517}],"persons":[],"organisations":[],"sources":[{"name":"Öppen källanalys","url":"https://veckobrevskartan.github.io/"}],"linkedinUrl":"https://www.linkedin.com/in/joelosint/detail/recent-activity/shares/","imageUrl":null,"timeline":true,"map":true,"newsletter":"2026-W01","language":"sv"},{"id":"2025-12-27-nato-lander-overens-om-ny-marin-skyddsoperation-for-kabel-i-","slug":"2025-12-27-nato-lander-overens-om-ny-marin-skyddsoperation-for-kabel-i-","title":"Nato-länder överens om ny marin skyddsoperation för kabel i Nordsjön","summary":"Analys och rapportering om nato relaterat till NATO och dess konsekvenser för regional säkerhet och stabilitet.","body":null,"published":"2025-12-27","updated":null,"isoYear":2025,"isoWeek":52,"pmesii":["M","INFRA"],"categories":["MAR","INFRA"],"keywords":["NATO","kabel","Nordsjön","marin","skydd"],"countries":["NATO"],"places":[{"name":"Bryssel","country":"Belgien","latitude":50.8503,"longitude":4.3517}],"persons":[],"organisations":[],"sources":[{"name":"Öppen källanalys","url":"https://veckobrevskartan.github.io/"}],"linkedinUrl":"https://www.linkedin.com/in/joelosint/detail/recent-activity/shares/","imageUrl":null,"timeline":true,"map":true,"newsletter":"2025-W52","language":"sv"},{"id":"2025-12-22-frankrike-griper-rysk-agent-misstankt-for-rekrytering-av-mil","slug":"2025-12-22-frankrike-griper-rysk-agent-misstankt-for-rekrytering-av-mil","title":"Frankrike griper rysk agent misstänkt för rekrytering av militärpersonal","summary":"Analys och rapportering om frankrike relaterat till Frankrike och dess konsekvenser för regional säkerhet och stabilitet.","body":null,"published":"2025-12-22","updated":null,"isoYear":2025,"isoWeek":52,"pmesii":["M","INFO"],"categories":["INTEL","HYBRID"],"keywords":["Frankrike","Ryssland","agent","rekrytering","DGSI"],"countries":["Frankrike","Ryssland"],"places":[{"name":"Paris","country":"Frankrike","latitude":48.8566,"longitude":2.3522}],"persons":[],"organisations":[],"sources":[{"name":"Öppen källanalys","url":"https://veckobrevskartan.github.io/"}],"linkedinUrl":"https://www.linkedin.com/in/joelosint/detail/recent-activity/shares/","imageUrl":null,"timeline":false,"map":true,"newsletter":"2025-W52","language":"sv"},{"id":"2025-12-21-israel-attackerar-hizbollahs-vapenforrad-i-libanon-eskalerin","slug":"2025-12-21-israel-attackerar-hizbollahs-vapenforrad-i-libanon-eskalerin","title":"Israel attackerar Hizbollahs vapenförråd i Libanon – eskalering befaras","summary":"Analys och rapportering om israel relaterat till Israel och dess konsekvenser för regional säkerhet och stabilitet.","body":null,"published":"2025-12-21","updated":null,"isoYear":2025,"isoWeek":51,"pmesii":["M"],"categories":["MIL","TERROR"],"keywords":["Israel","Hizbollah","Libanon","luftanfall","eskalering"],"countries":["Israel","Libanon"],"places":[{"name":"Beirut","country":"Libanon","latitude":33.8938,"longitude":35.5018}],"persons":[],"organisations":[],"sources":[{"name":"Öppen källanalys","url":"https://veckobrevskartan.github.io/"}],"linkedinUrl":"https://www.linkedin.com/in/joelosint/detail/recent-activity/shares/","imageUrl":null,"timeline":true,"map":true,"newsletter":"2025-W51","language":"sv"},{"id":"2025-12-14-cyberattack-mot-danska-sjukhus-orsakar-allvarliga-driftsstor","slug":"2025-12-14-cyberattack-mot-danska-sjukhus-orsakar-allvarliga-driftsstor","title":"Cyberattack mot danska sjukhus orsakar allvarliga driftsstörningar","summary":"Analys och rapportering om danmark relaterat till Danmark och dess konsekvenser för regional säkerhet och stabilitet.","body":null,"published":"2025-12-14","updated":null,"isoYear":2025,"isoWeek":50,"pmesii":["INFRA","INFO"],"categories":["INFRA","HYBRID"],"keywords":["Danmark","sjukhus","cyberattack","driftstörning"],"countries":["Danmark"],"places":[{"name":"Köpenhamn","country":"Danmark","latitude":55.6761,"longitude":12.5683}],"persons":[],"organisations":[],"sources":[{"name":"Öppen källanalys","url":"https://veckobrevskartan.github.io/"}],"linkedinUrl":"https://www.linkedin.com/in/joelosint/detail/recent-activity/shares/","imageUrl":null,"timeline":true,"map":true,"newsletter":"2025-W50","language":"sv"},{"id":"2025-12-11-ny-rapport-ryska-troll-fabriken-intensifierar-aktivitet-info","slug":"2025-12-11-ny-rapport-ryska-troll-fabriken-intensifierar-aktivitet-info","title":"Ny rapport: ryska troll-fabriken intensifierar aktivitet inför svenska val","summary":"Analys och rapportering om ryssland relaterat till Ryssland och dess konsekvenser för regional säkerhet och stabilitet.","body":null,"published":"2025-12-11","updated":null,"isoYear":2025,"isoWeek":50,"pmesii":["INFO","P"],"categories":["HYBRID"],"keywords":["Ryssland","troll-fabrik","Sverige","val","desinformation"],"countries":["Ryssland","Sverige"],"places":[{"name":"Stockholm","country":"Sverige","latitude":59.3293,"longitude":18.0686}],"persons":[],"organisations":[],"sources":[{"name":"Öppen källanalys","url":"https://veckobrevskartan.github.io/"}],"linkedinUrl":"https://www.linkedin.com/in/joelosint/detail/recent-activity/shares/","imageUrl":null,"timeline":false,"map":true,"newsletter":"2025-W50","language":"sv"},{"id":"2025-12-07-polen-forstarker-ostgrans-med-ytterligare-5-000-militarer","slug":"2025-12-07-polen-forstarker-ostgrans-med-ytterligare-5-000-militarer","title":"Polen förstärker östgräns med ytterligare 5 000 militärer","summary":"Analys och rapportering om polen relaterat till Polen och dess konsekvenser för regional säkerhet och stabilitet.","body":null,"published":"2025-12-07","updated":null,"isoYear":2025,"isoWeek":49,"pmesii":["M"],"categories":["MIL"],"keywords":["Polen","östgräns","militär","förstärkning","Ryssland"],"countries":["Polen","Ryssland","Belarus"],"places":[{"name":"Warszawa","country":"Polen","latitude":52.2297,"longitude":21.0122}],"persons":[],"organisations":[],"sources":[{"name":"Öppen källanalys","url":"https://veckobrevskartan.github.io/"}],"linkedinUrl":"https://www.linkedin.com/in/joelosint/detail/recent-activity/shares/","imageUrl":null,"timeline":true,"map":true,"newsletter":"2025-W49","language":"sv"},{"id":"2025-12-02-storbrittanien-utvisar-gru-agenter-efter-salisbury-typ-opera","slug":"2025-12-02-storbrittanien-utvisar-gru-agenter-efter-salisbury-typ-opera","title":"Storbrittanien utvisar GRU-agenter efter Salisbury-typ operation i Leeds","summary":"Analys och rapportering om gru relaterat till Ryssland och dess konsekvenser för regional säkerhet och stabilitet.","body":null,"published":"2025-12-02","updated":null,"isoYear":2025,"isoWeek":49,"pmesii":["INFO","M"],"categories":["INTEL","HYBRID"],"keywords":["GRU","agent","utvisning","Leeds","Novitjok"],"countries":["Ryssland","Storbritannien"],"places":[{"name":"London","country":"Storbritannien","latitude":51.5074,"longitude":-0.1278}],"persons":[],"organisations":[],"sources":[{"name":"Öppen källanalys","url":"https://veckobrevskartan.github.io/"}],"linkedinUrl":"https://www.linkedin.com/in/joelosint/detail/recent-activity/shares/","imageUrl":null,"timeline":true,"map":true,"newsletter":"2025-W49","language":"sv"},{"id":"2025-11-29-droneanfall-mot-oljeraffinaderi-i-saudiarabien-tillskrivs-ho","slug":"2025-11-29-droneanfall-mot-oljeraffinaderi-i-saudiarabien-tillskrivs-ho","title":"Droneanfall mot oljeraffinaderi i Saudiarabien tillskrivs Houthi","summary":"Analys och rapportering om houthi relaterat till Jemen och dess konsekvenser för regional säkerhet och stabilitet.","body":null,"published":"2025-11-29","updated":null,"isoYear":2025,"isoWeek":48,"pmesii":["M","E"],"categories":["DRONE","MIL"],"keywords":["Houthi","drönare","Saudiarabien","raffinaderi","Jemen"],"countries":["Jemen","Saudiarabien"],"places":[{"name":"Riyadh","country":"Saudiarabien","latitude":24.7136,"longitude":46.6753}],"persons":[],"organisations":[],"sources":[{"name":"Öppen källanalys","url":"https://veckobrevskartan.github.io/"}],"linkedinUrl":"https://www.linkedin.com/in/joelosint/detail/recent-activity/shares/","imageUrl":null,"timeline":false,"map":true,"newsletter":"2025-W48","language":"sv"},{"id":"2025-11-25-azerbajdzjan-och-armenien-i-ny-granskonflikt-osse-ingriper","slug":"2025-11-25-azerbajdzjan-och-armenien-i-ny-granskonflikt-osse-ingriper","title":"Azerbajdzjan och Armenien i ny gränskonflikt – OSSE ingriper","summary":"Analys och rapportering om azerbajdzjan relaterat till Azerbajdzjan och dess konsekvenser för regional säkerhet och stabilitet.","body":null,"published":"2025-11-25","updated":null,"isoYear":2025,"isoWeek":48,"pmesii":["M","P"],"categories":["MIL","POLICY"],"keywords":["Azerbajdzjan","Armenien","gräns","OSSE","konflikt"],"countries":["Azerbajdzjan","Armenien"],"places":[{"name":"Baku","country":"Azerbajdzjan","latitude":40.4093,"longitude":49.8671}],"persons":[],"organisations":[],"sources":[{"name":"Öppen källanalys","url":"https://veckobrevskartan.github.io/"}],"linkedinUrl":"https://www.linkedin.com/in/joelosint/detail/recent-activity/shares/","imageUrl":null,"timeline":true,"map":true,"newsletter":"2025-W48","language":"sv"},{"id":"2025-11-23-iran-blockerar-hormuz-sundet-under-48-timmar-oljepriset-stig","slug":"2025-11-23-iran-blockerar-hormuz-sundet-under-48-timmar-oljepriset-stig","title":"Iran blockerar Hormuz-sundet under 48 timmar – oljepriset stiger","summary":"Analys och rapportering om iran relaterat till Iran och dess konsekvenser för regional säkerhet och stabilitet.","body":null,"published":"2025-11-23","updated":null,"isoYear":2025,"isoWeek":47,"pmesii":["E","M","P"],"categories":["MAR","POLICY"],"keywords":["Iran","Hormuz","olja","blockad","oljepris"],"countries":["Iran"],"places":[{"name":"Hormuz","country":"Iran","latitude":26.5775,"longitude":56.2614}],"persons":[],"organisations":[],"sources":[{"name":"Öppen källanalys","url":"https://veckobrevskartan.github.io/"}],"linkedinUrl":"https://www.linkedin.com/in/joelosint/detail/recent-activity/shares/","imageUrl":null,"timeline":true,"map":true,"newsletter":"2025-W47","language":"sv"},{"id":"2025-11-17-ryska-pseudostatliga-medier-sprider-desinformation-om-nato-o","slug":"2025-11-17-ryska-pseudostatliga-medier-sprider-desinformation-om-nato-o","title":"Ryska pseudostatliga medier sprider desinformation om NATO-övning","summary":"Analys och rapportering om ryssland relaterat till Ryssland och dess konsekvenser för regional säkerhet och stabilitet.","body":null,"published":"2025-11-17","updated":null,"isoYear":2025,"isoWeek":47,"pmesii":["INFO"],"categories":["HYBRID"],"keywords":["Ryssland","desinformation","NATO","påverkan","medier"],"countries":["Ryssland","NATO"],"places":[{"name":"Moskva","country":"Ryssland","latitude":55.7558,"longitude":37.6173}],"persons":[],"organisations":[],"sources":[{"name":"Öppen källanalys","url":"https://veckobrevskartan.github.io/"}],"linkedinUrl":"https://www.linkedin.com/in/joelosint/detail/recent-activity/shares/","imageUrl":null,"timeline":true,"map":true,"newsletter":"2025-W47","language":"sv"},{"id":"2025-11-14-tysk-bnd-varnar-for-kinesisk-industrispionage-mot-batterifab","slug":"2025-11-14-tysk-bnd-varnar-for-kinesisk-industrispionage-mot-batterifab","title":"Tysk BND varnar för kinesisk industrispionage mot batterifabriker","summary":"Analys och rapportering om kina relaterat till Kina och dess konsekvenser för regional säkerhet och stabilitet.","body":null,"published":"2025-11-14","updated":null,"isoYear":2025,"isoWeek":46,"pmesii":["INFO","E"],"categories":["INTEL"],"keywords":["Kina","BND","industrispionage","batteri","EV"],"countries":["Kina","Tyskland"],"places":[{"name":"Berlin","country":"Tyskland","latitude":52.52,"longitude":13.405}],"persons":[],"organisations":[],"sources":[{"name":"Öppen källanalys","url":"https://veckobrevskartan.github.io/"}],"linkedinUrl":"https://www.linkedin.com/in/joelosint/detail/recent-activity/shares/","imageUrl":null,"timeline":false,"map":true,"newsletter":"2025-W46","language":"sv"},{"id":"2025-11-09-litauen-infor-obligatorisk-militartjanst-reaktion-pa-okad-ho","slug":"2025-11-09-litauen-infor-obligatorisk-militartjanst-reaktion-pa-okad-ho","title":"Litauen inför obligatorisk militärtjänst – reaktion på ökad hotbild","summary":"Analys och rapportering om litauen relaterat till Litauen och dess konsekvenser för regional säkerhet och stabilitet.","body":null,"published":"2025-11-09","updated":null,"isoYear":2025,"isoWeek":45,"pmesii":["M","P"],"categories":["MIL","POLICY"],"keywords":["Litauen","militärtjänst","hotbild","värnplikt"],"countries":["Litauen","Ryssland"],"places":[{"name":"Vilnius","country":"Litauen","latitude":54.6872,"longitude":25.2797}],"persons":[],"organisations":[],"sources":[{"name":"Öppen källanalys","url":"https://veckobrevskartan.github.io/"}],"linkedinUrl":"https://www.linkedin.com/in/joelosint/detail/recent-activity/shares/","imageUrl":null,"timeline":false,"map":true,"newsletter":"2025-W45","language":"sv"},{"id":"2025-11-04-finlands-gransbevakning-rapporterar-ovanlig-rysk-militarakti","slug":"2025-11-04-finlands-gransbevakning-rapporterar-ovanlig-rysk-militarakti","title":"Finlands gränsbevakning rapporterar ovanlig rysk militäraktivitet","summary":"Analys och rapportering om finland relaterat till Finland och dess konsekvenser för regional säkerhet och stabilitet.","body":null,"published":"2025-11-04","updated":null,"isoYear":2025,"isoWeek":45,"pmesii":["M","INFRA"],"categories":["MIL","HYBRID"],"keywords":["Finland","Ryssland","gräns","militär"],"countries":["Finland","Ryssland"],"places":[{"name":"Helsingfors","country":"Finland","latitude":60.1699,"longitude":24.9384}],"persons":[],"organisations":[],"sources":[{"name":"Öppen källanalys","url":"https://veckobrevskartan.github.io/"}],"linkedinUrl":"https://www.linkedin.com/in/joelosint/detail/recent-activity/shares/","imageUrl":null,"timeline":true,"map":true,"newsletter":"2025-W45","language":"sv"},{"id":"2025-11-01-sverige-starker-gotland-forsvaret-med-nytt-artillerisystem","slug":"2025-11-01-sverige-starker-gotland-forsvaret-med-nytt-artillerisystem","title":"Sverige stärker Gotland-försvaret med nytt artillerisystem","summary":"Analys och rapportering om sverige relaterat till Sverige och dess konsekvenser för regional säkerhet och stabilitet.","body":null,"published":"2025-11-01","updated":null,"isoYear":2025,"isoWeek":44,"pmesii":["M"],"categories":["MIL"],"keywords":["Sverige","Gotland","försvar","artilleri"],"countries":["Sverige"],"places":[{"name":"Gotland","country":"Sverige","latitude":57.5,"longitude":18.5}],"persons":[],"organisations":[],"sources":[{"name":"Öppen källanalys","url":"https://veckobrevskartan.github.io/"}],"linkedinUrl":"https://www.linkedin.com/in/joelosint/detail/recent-activity/shares/","imageUrl":null,"timeline":true,"map":true,"newsletter":"2025-W44","language":"sv"},{"id":"2025-10-29-eu-aktiverar-krisstodsmekanism-efter-rysk-sabotage-mot-gas-p","slug":"2025-10-29-eu-aktiverar-krisstodsmekanism-efter-rysk-sabotage-mot-gas-p","title":"EU aktiverar krisstödsmekanism efter rysk sabotage mot gas-pipeline i Östersjön","summary":"Efter att ytterligare en gasinfrastruktur i Östersjön skadats av vad som bedöms vara avsiktlig yttre påverkan aktiverar EU-kommissionen sin krisstödsmekanism för energiförsörjning.","body":null,"published":"2025-10-29","updated":null,"isoYear":2025,"isoWeek":44,"pmesii":["E","INFRA","P"],"categories":["INFRA","HYBRID","POLICY"],"keywords":["EU","gas","pipeline","Östersjön","sabotage","energi","krisstöd"],"countries":["Ryssland","EU","Finland"],"places":[{"name":"Östersjön","country":"Finland","latitude":59.0,"longitude":22.0}],"persons":[],"organisations":["EU-kommissionen"],"sources":[{"name":"Reuters","url":"https://reuters.com"},{"name":"Politico","url":"https://politico.eu"}],"linkedinUrl":"https://www.linkedin.com/in/joelosint/detail/recent-activity/shares/","imageUrl":null,"timeline":true,"map":true,"newsletter":"2025-W44","language":"sv"},{"id":"2025-10-27-pakistan-genomfor-karnvapenovning-i-en-eskaleringskontext-me","slug":"2025-10-27-pakistan-genomfor-karnvapenovning-i-en-eskaleringskontext-me","title":"Pakistan genomför kärnvapenövning i en eskaleringskontext med Indien","summary":"Pakistans strategiska styrkor genomför en icke-annonserad övning med kärnvapenförmåga mitt under en period av förhöjda spänningar längs LoC i Kashmir. Indien svarar med höjd beredskap.","body":null,"published":"2025-10-27","updated":null,"isoYear":2025,"isoWeek":44,"pmesii":["M","P"],"categories":["NUCLEAR","MIL"],"keywords":["Pakistan","Indien","kärnvapen","Kashmir","LoC","kärnvapenövning"],"countries":["Pakistan","Indien"],"places":[{"name":"Islamabad","country":"Pakistan","latitude":33.6844,"longitude":73.0479}],"persons":[],"organisations":["ISI","SPD"],"sources":[{"name":"Dawn","url":"https://dawn.com"},{"name":"NDTV","url":"https://ndtv.com"}],"linkedinUrl":"https://www.linkedin.com/in/joelosint/detail/recent-activity/shares/","imageUrl":null,"timeline":true,"map":true,"newsletter":"2025-W44","language":"sv"},{"id":"2025-10-22-lettland-antar-ny-lagstiftning-mot-utlandsk-informationsoper","slug":"2025-10-22-lettland-antar-ny-lagstiftning-mot-utlandsk-informationsoper","title":"Lettland antar ny lagstiftning mot utländsk informationsoperation","summary":"Lettlands parlament röstar igenom lagstiftning som ger säkerhetstjänsten LPAB utökade befogenheter att blockera utländsk propanda och stänga av aktörer som agerar för rysk påverkan.","body":null,"published":"2025-10-22","updated":null,"isoYear":2025,"isoWeek":43,"pmesii":["P","INFO"],"categories":["POLICY","HYBRID","LEGAL"],"keywords":["Lettland","informationsoperation","propaganda","LPAB","lagstiftning"],"countries":["Lettland","Ryssland"],"places":[{"name":"Riga","country":"Lettland","latitude":56.9459,"longitude":24.1059}],"persons":[],"organisations":["LPAB"],"sources":[{"name":"LSM","url":"https://lsm.lv"},{"name":"Baltic Times","url":"https://baltictimes.com"}],"linkedinUrl":"https://www.linkedin.com/in/joelosint/detail/recent-activity/shares/","imageUrl":null,"timeline":false,"map":true,"newsletter":"2025-W43","language":"sv"},{"id":"2025-10-19-ryssland-genomfor-storskalig-cyberattack-mot-ukrainsk-elnats","slug":"2025-10-19-ryssland-genomfor-storskalig-cyberattack-mot-ukrainsk-elnats","title":"Ryssland genomför storskalig cyberattack mot ukrainsk elnätsoperatör","summary":"Sandworm-gruppen, knuten till GRU, identifieras bakom en koordinerad attack mot ukrainska Ukrenergo. Attacken orsakar strömavbrott för över två miljoner hushåll och komprometterar SCADA-system.","body":null,"published":"2025-10-19","updated":null,"isoYear":2025,"isoWeek":42,"pmesii":["INFRA","INFO","M"],"categories":["INFRA","HYBRID"],"keywords":["Ryssland","Ukraina","Sandworm","GRU","SCADA","elnät","cyberattack"],"countries":["Ryssland","Ukraina"],"places":[{"name":"Kiev","country":"Ukraina","latitude":50.4501,"longitude":30.5234}],"persons":[],"organisations":["Sandworm","GRU","Ukrenergo"],"sources":[{"name":"CERT-UA","url":"https://cert.gov.ua"},{"name":"Mandiant","url":"https://mandiant.com"}],"linkedinUrl":"https://www.linkedin.com/in/joelosint/detail/recent-activity/shares/","imageUrl":null,"timeline":true,"map":true,"newsletter":"2025-W42","language":"sv"},{"id":"2025-10-18-hollandet-infor-nodlagstiftning-efter-serie-ryskstodda-sabot","slug":"2025-10-18-hollandet-infor-nodlagstiftning-efter-serie-ryskstodda-sabot","title":"Hollandet inför nödlagstiftning efter serie ryskstödda sabotageförsök","summary":"Niederländerna inför tidsbegränsad nödlagstiftning för att stärka skyddet av kritisk infrastruktur efter att ett flertal misstänkta ryska sabotageoperationer riktats mot hamninfrastruktur och kemianläggningar.","body":null,"published":"2025-10-18","updated":null,"isoYear":2025,"isoWeek":42,"pmesii":["P","INFRA","M"],"categories":["INFRA","HYBRID","LEGAL"],"keywords":["Nederländerna","nödlag","sabotage","hamn","kritisk infrastruktur"],"countries":["Nederländerna","Ryssland"],"places":[{"name":"Rotterdam","country":"Nederländerna","latitude":51.9225,"longitude":4.4792}],"persons":[],"organisations":["AIVD"],"sources":[{"name":"NOS","url":"https://nos.nl"},{"name":"Reuters","url":"https://reuters.com"}],"linkedinUrl":"https://www.linkedin.com/in/joelosint/detail/recent-activity/shares/","imageUrl":null,"timeline":true,"map":true,"newsletter":"2025-W42","language":"sv"},{"id":"2025-10-15-islamiska-staten-ny-terrorcell-avvarjd-av-sapo-och-norska-ps","slug":"2025-10-15-islamiska-staten-ny-terrorcell-avvarjd-av-sapo-och-norska-ps","title":"Islamiska staten ny terrorcell avvärjd av Säpo och norska PST","summary":"Säkerhetspolisen och norska PST avvärjer i koordinerat slag ett planerat attentat i Skandinavien. Tre individer grips med kopplingar till IS-nätverket i Syrien och Irak.","body":null,"published":"2025-10-15","updated":null,"isoYear":2025,"isoWeek":42,"pmesii":["S","P"],"categories":["TERROR","INTEL"],"keywords":["Säpo","PST","IS","islamiska staten","attentat","terrorism"],"countries":["Sverige","Norge"],"places":[{"name":"Stockholm","country":"Sverige","latitude":59.3293,"longitude":18.0686}],"persons":[],"organisations":["Säpo","PST","Islamiska staten"],"sources":[{"name":"SVT","url":"https://svt.se"},{"name":"NRK","url":"https://nrk.no"}],"linkedinUrl":"https://www.linkedin.com/in/joelosint/detail/recent-activity/shares/","imageUrl":null,"timeline":true,"map":true,"newsletter":"2025-W42","language":"sv"},{"id":"2025-10-10-belarus-aktiverar-ny-granskontrollregim-mot-eu-i-koordinatio","slug":"2025-10-10-belarus-aktiverar-ny-granskontrollregim-mot-eu-i-koordinatio","title":"Belarus aktiverar ny gränskontrollregim mot EU i koordination med Moskva","summary":"Lukasjenkaregimen inför hårdare gränskontroll mot Polen och Litauen med rysk militär rådgivning. Åtgärden kombineras med ökad instrumentalisering av migranter som påtryckningsmedel.","body":null,"published":"2025-10-10","updated":null,"isoYear":2025,"isoWeek":41,"pmesii":["P","S","M"],"categories":["HYBRID","POLICY"],"keywords":["Belarus","gräns","migration","Lukasjenka","Polen","Litauen"],"countries":["Belarus","Polen","Litauen","Ryssland"],"places":[{"name":"Minsk","country":"Belarus","latitude":53.9045,"longitude":27.5615}],"persons":["Aleksandr Lukasjenka"],"organisations":["KGB Belarus"],"sources":[{"name":"RFE/RL","url":"https://rferl.org"},{"name":"Politico","url":"https://politico.eu"}],"linkedinUrl":"https://www.linkedin.com/in/joelosint/detail/recent-activity/shares/","imageUrl":null,"timeline":true,"map":true,"newsletter":"2025-W41","language":"sv"},{"id":"2025-10-09-misstankt-undervattenssabotage-mot-databundkabel-i-nordsjon-","slug":"2025-10-09-misstankt-undervattenssabotage-mot-databundkabel-i-nordsjon-","title":"Misstänkt undervattenssabotage mot databundkabel i Nordsjön utredd","summary":"En viktig transatlantisk optisk fiberkabel i Nordsjön uppvisar skador som inte kan förklaras av normalt slitage. Norge och Danmark inleder gemensam utredning. NATO aktiverar maritim beredskapsgrupp.","body":null,"published":"2025-10-09","updated":null,"isoYear":2025,"isoWeek":41,"pmesii":["INFRA","INFO","M"],"categories":["INFRA","HYBRID","MAR"],"keywords":["kabel","undervattens","Nordsjön","sabotage","fiber","NATO"],"countries":["Norge","Danmark"],"places":[{"name":"Nordsjön","country":"Norge","latitude":57.0,"longitude":3.0}],"persons":[],"organisations":["NATO"],"sources":[{"name":"NTB","url":"https://ntb.no"},{"name":"Reuters","url":"https://reuters.com"}],"linkedinUrl":"https://www.linkedin.com/in/joelosint/detail/recent-activity/shares/","imageUrl":null,"timeline":false,"map":true,"newsletter":"2025-W41","language":"sv"},{"id":"2025-10-05-turkiet-blockerar-nato-fartygspassage-genom-bosporen-under-m","slug":"2025-10-05-turkiet-blockerar-nato-fartygspassage-genom-bosporen-under-m","title":"Turkiet blockerar NATO-fartygspassage genom Bosporen under manöver","summary":"Turkiska myndigheter stängde tillfälligt Bosporen för NATO-örlogsfartyg under en oannonserad marin övning. Händelsen skapar diplomatisk friktion men Turkiet hävdar Montreux-konventionens bestämmelser.","body":null,"published":"2025-10-05","updated":null,"isoYear":2025,"isoWeek":40,"pmesii":["P","M"],"categories":["MAR","POLICY"],"keywords":["Turkiet","Bosporen","NATO","Montreux","örlogsfartyg"],"countries":["Turkiet"],"places":[{"name":"Istanbul","country":"Turkiet","latitude":41.0082,"longitude":28.9784}],"persons":[],"organisations":["NATO","Türk Deniz Kuvvetleri"],"sources":[{"name":"Daily Sabah","url":"https://dailysabah.com"},{"name":"Naval News","url":"https://navalnews.com"}],"linkedinUrl":"https://www.linkedin.com/in/joelosint/detail/recent-activity/shares/","imageUrl":null,"timeline":true,"map":true,"newsletter":"2025-W40","language":"sv"},{"id":"2025-10-03-ny-rysk-elektronisk-krigforingsplattform-driftsatt-i-leningr","slug":"2025-10-03-ny-rysk-elektronisk-krigforingsplattform-driftsatt-i-leningr","title":"Ny rysk elektronisk krigföringsplattform driftsatt i Leningradregionen","summary":"Öppenkällsanalys av fordonrörelser och frekvensövervakning tyder på att Ryssland driftsatt ett nytt elektroniskt krigföringssystem i Leningradregionen, möjligen riktat mot finskt och estniskt luftrum.","body":null,"published":"2025-10-03","updated":null,"isoYear":2025,"isoWeek":40,"pmesii":["M","INFO"],"categories":["MIL","HYBRID"],"keywords":["elektronisk krigföring","EW","Ryssland","Leningrad","Finland"],"countries":["Ryssland","Finland","Estland"],"places":[{"name":"S:t Petersburg","country":"Ryssland","latitude":59.9343,"longitude":30.3351}],"persons":[],"organisations":["RF Armed Forces"],"sources":[{"name":"Bellingcat","url":"https://bellingcat.com"}],"linkedinUrl":"https://www.linkedin.com/in/joelosint/detail/recent-activity/shares/","imageUrl":null,"timeline":false,"map":true,"newsletter":"2025-W40","language":"sv"},{"id":"2025-09-30-kinesiska-statsanknutna-hackare-kartlade-av-eu-landernas-und","slug":"2025-09-30-kinesiska-statsanknutna-hackare-kartlade-av-eu-landernas-und","title":"Kinesiska statsanknutna hackare kartlade av EU-ländernas underrättelsetjänster","summary":"En koordinerad EU-rapport pekar ut den kinesiska APT41-gruppen som ansvarig för systematiska intrång i europeisk försvarsindustri, halvledarföretag och statliga IT-system under de senaste 18 månaderna.","body":null,"published":"2025-09-30","updated":null,"isoYear":2025,"isoWeek":40,"pmesii":["M","INFO","E"],"categories":["INTEL","HYBRID"],"keywords":["Kina","APT41","cyberintrång","försvarsindustri","spionage"],"countries":["Kina","EU"],"places":[{"name":"Bryssel","country":"Belgien","latitude":50.8503,"longitude":4.3517}],"persons":[],"organisations":["APT41","ENISA"],"sources":[{"name":"Reuters","url":"https://reuters.com"},{"name":"Spiegel","url":"https://spiegel.de"}],"linkedinUrl":"https://www.linkedin.com/in/joelosint/detail/recent-activity/shares/","imageUrl":null,"timeline":false,"map":true,"newsletter":"2025-W40","language":"sv"},{"id":"2025-09-27-estland-utvisar-rysk-diplomat-misstankt-for-rekrytering-av-k","slug":"2025-09-27-estland-utvisar-rysk-diplomat-misstankt-for-rekrytering-av-k","title":"Estland utvisar rysk diplomat misstänkt för rekrytering av källnät","summary":"Estniska KAPO, den interna säkerhetstjänsten, utvisar en rysk diplomat som persona non grata efter att ha identifierats som aktiv rekryterare inom estländsk akademi och statsförvaltning.","body":null,"published":"2025-09-27","updated":null,"isoYear":2025,"isoWeek":39,"pmesii":["P","INFO"],"categories":["INTEL","HYBRID"],"keywords":["Estland","KAPO","diplomat","utvisning","rekrytering","spionage"],"countries":["Estland","Ryssland"],"places":[{"name":"Tallinn","country":"Estland","latitude":59.437,"longitude":24.7536}],"persons":[],"organisations":["KAPO"],"sources":[{"name":"ERR","url":"https://err.ee"},{"name":"BNS","url":"https://bns.ee"}],"linkedinUrl":"https://www.linkedin.com/in/joelosint/detail/recent-activity/shares/","imageUrl":null,"timeline":false,"map":true,"newsletter":"2025-W39","language":"sv"},{"id":"2025-09-24-wagner-efterfoljaren-afrika-korpset-expanderar-i-mali-och-bu","slug":"2025-09-24-wagner-efterfoljaren-afrika-korpset-expanderar-i-mali-och-bu","title":"Wagner-efterföljaren Afrika Korpset expanderar i Mali och Burkina Faso","summary":"Ryskstödda paramilitära styrkor under den nya Afrika Korpset-strukturen ökar sin närvaro i Sahel. Franska och europeiska diplomatiska källor bekräftar utvidgade operationer och ökade våldsincidenter mot civila.","body":null,"published":"2025-09-24","updated":null,"isoYear":2025,"isoWeek":39,"pmesii":["M","P","S"],"categories":["MIL","HYBRID","TERROR"],"keywords":["Wagner","Afrika Korpset","Mali","Burkina Faso","Sahel","PMC"],"countries":["Ryssland","Mali","Burkina Faso"],"places":[{"name":"Bamako","country":"Mali","latitude":12.6392,"longitude":-8.0029}],"persons":[],"organisations":["Afrika Korpset"],"sources":[{"name":"Le Monde","url":"https://lemonde.fr"},{"name":"Africa Intelligence","url":"https://africaintelligence.com"}],"linkedinUrl":"https://www.linkedin.com/in/joelosint/detail/recent-activity/shares/","imageUrl":null,"timeline":true,"map":true,"newsletter":"2025-W39","language":"sv"},{"id":"2025-09-21-gps-storningar-eskalerar-i-ostersjon-civil-luftfart-paverkas","slug":"2025-09-21-gps-storningar-eskalerar-i-ostersjon-civil-luftfart-paverkas","title":"GPS-störningar eskalerar i Östersjön – civil luftfart påverkas","summary":"Luftfartsmyndigheter i Finland, Estland och Sverige rapporterar om kraftigt ökade GPS-störningar över Östersjön och Gotland. Stör navigationen för civila flygplan och fartyg. Källan bedöms vara rysk militär kapacitet i Kaliningrad.","body":null,"published":"2025-09-21","updated":null,"isoYear":2025,"isoWeek":38,"pmesii":["M","INFRA","INFO"],"categories":["GPS","HYBRID","INFRA"],"keywords":["GPS","störning","Östersjön","Kaliningrad","luftfart","navigation"],"countries":["Ryssland","Finland","Sverige","Estland"],"places":[{"name":"Gotland","country":"Sverige","latitude":57.5,"longitude":18.5}],"persons":[],"organisations":["Transportstyrelsen","Traficom"],"sources":[{"name":"Yle","url":"https://yle.fi"},{"name":"EUROCONTROL","url":"https://eurocontrol.int"}],"linkedinUrl":"https://www.linkedin.com/in/joelosint/detail/recent-activity/shares/","imageUrl":null,"timeline":true,"map":true,"newsletter":"2025-W38","language":"sv"},{"id":"2025-09-17-nordkorea-levererar-artilleriammunition-till-ryssland-via-vl","slug":"2025-09-17-nordkorea-levererar-artilleriammunition-till-ryssland-via-vl","title":"Nordkorea levererar artilleriammunition till Ryssland via Vladivostok","summary":"Satellitbilder och hamnloggar bekräftar överföring av tungt artilleriammunition från nordkoreanska fartyg i Vladivostok. USA och EU fördömer leveranserna och aviserar utökade sanktioner.","body":null,"published":"2025-09-17","updated":null,"isoYear":2025,"isoWeek":38,"pmesii":["M","P","E"],"categories":["MIL","POLICY"],"keywords":["Nordkorea","Ryssland","ammunition","Vladivostok","sanktioner"],"countries":["Nordkorea","Ryssland"],"places":[{"name":"Vladivostok","country":"Ryssland","latitude":43.1332,"longitude":131.9113}],"persons":["Kim Jong-un"],"organisations":["KPA"],"sources":[{"name":"Reuters","url":"https://reuters.com"},{"name":"NK News","url":"https://nknews.org"}],"linkedinUrl":"https://www.linkedin.com/in/joelosint/detail/recent-activity/shares/","imageUrl":null,"timeline":true,"map":true,"newsletter":"2025-W38","language":"sv"},{"id":"2025-09-13-iran-testar-ballistiska-robotar-med-okad-rackvidd-ny-milstol","slug":"2025-09-13-iran-testar-ballistiska-robotar-med-okad-rackvidd-ny-milstol","title":"Iran testar ballistiska robotar med ökad räckvidd – ny milstolpe för missilprogrammet","summary":"Iranska revolutionsgardet genomför provskjutning av en ny generation ballistiska medeldistansrobotar. Analytiker bedömer att räckvidden nu täcker mål i södra Europa och delar av norra Indien.","body":null,"published":"2025-09-13","updated":null,"isoYear":2025,"isoWeek":37,"pmesii":["M","P"],"categories":["MIL","NUCLEAR"],"keywords":["Iran","missil","IRGC","ballistisk","kärnvapen","räckvidd"],"countries":["Iran","Israel"],"places":[{"name":"Teheran","country":"Iran","latitude":35.6892,"longitude":51.389}],"persons":[],"organisations":["IRGC","AEOI"],"sources":[{"name":"Reuters","url":"https://reuters.com"},{"name":"Arms Control Association","url":"https://armscontrol.org"}],"linkedinUrl":"https://www.linkedin.com/in/joelosint/detail/recent-activity/shares/","imageUrl":null,"timeline":false,"map":true,"newsletter":"2025-W37","language":"sv"},{"id":"2025-09-12-gru-knuten-grupp-kartlagd-i-sabotageoperationer-mot-nordisk-","slug":"2025-09-12-gru-knuten-grupp-kartlagd-i-sabotageoperationer-mot-nordisk-","title":"GRU-knuten grupp kartlagd i sabotageoperationer mot nordisk energiinfrastruktur","summary":"Norska PST och danska PET publicerar gemensam rapport som identifierar aktörer kopplade till rysk militär underrättelsetjänst bakom ett flertal incidenter mot offshore-plattformar och elnät i Nordsjön.","body":null,"published":"2025-09-12","updated":null,"isoYear":2025,"isoWeek":37,"pmesii":["M","INFRA","INFO"],"categories":["HYBRID","INTEL","INFRA"],"keywords":["GRU","Norge","energi","Nordsjön","PST","PET"],"countries":["Ryssland","Norge","Danmark"],"places":[{"name":"Oslo","country":"Norge","latitude":59.9139,"longitude":10.7522}],"persons":[],"organisations":["PST","PET","GRU"],"sources":[{"name":"PST.no","url":"https://pst.no"},{"name":"DR","url":"https://dr.dk"}],"linkedinUrl":"https://www.linkedin.com/in/joelosint/detail/recent-activity/shares/","imageUrl":null,"timeline":true,"map":true,"newsletter":"2025-W37","language":"sv"},{"id":"2025-09-07-kina-expanderar-militarnarvaro-i-sydkinesiska-havet-ny-orlog","slug":"2025-09-07-kina-expanderar-militarnarvaro-i-sydkinesiska-havet-ny-orlog","title":"Kina expanderar militärnärvaro i Sydkinesiska havet – ny örlogshamn klar","summary":"Satellitbilder bekräftar att en ny kinesisk örlogshamn på Spratlyöarna är operativ. Anläggningen rymmer ubåtar och ytfartyg och stärker Kinas förmåga att kontrollera sjöfartsleden genom regionen.","body":null,"published":"2025-09-07","updated":null,"isoYear":2025,"isoWeek":36,"pmesii":["M","P"],"categories":["MAR","MIL"],"keywords":["Kina","Sydkinesiska havet","örlogshamn","Spratlyöarna","PLAN"],"countries":["Kina","Filippinerna","Vietnam"],"places":[{"name":"Spratlyöarna","country":"Kina","latitude":8.65,"longitude":111.92}],"persons":[],"organisations":["PLAN","PLAN Navy"],"sources":[{"name":"CSIS","url":"https://csis.org"},{"name":"South China Morning Post","url":"https://scmp.com"}],"linkedinUrl":"https://www.linkedin.com/in/joelosint/detail/recent-activity/shares/","imageUrl":null,"timeline":false,"map":true,"newsletter":"2025-W36","language":"sv"},{"id":"2025-09-06-ukraina-slar-ut-rysk-radaranlaggning-med-langdistansdronare","slug":"2025-09-06-ukraina-slar-ut-rysk-radaranlaggning-med-langdistansdronare","title":"Ukraina slår ut rysk radaranläggning med långdistansdrönare","summary":"Ukrainska väpnade styrkor uppger att de neutraliserat en strategisk radarinstallation i Rostov oblast med hjälp av inhemskproducerade drönare med räckvidd över 1 000 km.","body":null,"published":"2025-09-06","updated":null,"isoYear":2025,"isoWeek":36,"pmesii":["M"],"categories":["DRONE","MIL"],"keywords":["drönare","Ukraina","radar","Rostov","långdistans"],"countries":["Ukraina","Ryssland"],"places":[{"name":"Rostov","country":"Ryssland","latitude":47.2357,"longitude":39.7015}],"persons":[],"organisations":["UAF"],"sources":[{"name":"Kyiv Independent","url":"https://kyivindependent.com"},{"name":"ISW","url":"https://understandingwar.org"}],"linkedinUrl":"https://www.linkedin.com/in/joelosint/detail/recent-activity/shares/","imageUrl":null,"timeline":false,"map":true,"newsletter":"2025-W36","language":"sv"},{"id":"2025-09-02-ryssland-intensifierar-sabotageoperationer-mot-europeisk-jar","slug":"2025-09-02-ryssland-intensifierar-sabotageoperationer-mot-europeisk-jar","title":"Ryssland intensifierar sabotageoperationer mot europeisk järnvägsinfrastruktur","summary":"Underrättelseuppgifter pekar på ökad rysk aktivitet riktad mot signalsystem och spårväxlar i Polen, Baltikum och Finland. Operationerna kombinerar fysiska sabotageförsök med cyberintrång mot driftsystem.","body":null,"published":"2025-09-02","updated":null,"isoYear":2025,"isoWeek":36,"pmesii":["M","INFRA"],"categories":["HYBRID","INFRA"],"keywords":["sabotage","järnväg","infrastruktur","Ryssland","hybridkrigföring"],"countries":["Ryssland","Polen","Finland","Estland"],"places":[{"name":"Warszawa","country":"Polen","latitude":52.2297,"longitude":21.0122}],"persons":[],"organisations":["GRU","FSB"],"sources":[{"name":"Reuters","url":"https://reuters.com"},{"name":"Politico","url":"https://politico.eu"}],"linkedinUrl":"https://www.linkedin.com/in/joelosint/detail/recent-activity/shares/","imageUrl":null,"timeline":false,"map":true,"newsletter":"2025-W36","language":"sv"}];
+
+const PMESII_LABELS = {P:'Politiskt',M:'Militärt',E:'Ekonomiskt',S:'Socialt',INFO:'Information',INFRA:'Infrastruktur'};
+const CAT_LABELS = {HYBRID:'Hybrid',NUCLEAR:'Nukleärt',DRONE:'Drönare',INFRA:'Infrastruktur',MIL:'Militärt',INTEL:'Underrättelse',TERROR:'Terror',POLICY:'Policy',LEGAL:'Juridik',MAR:'Marint',GPS:'GPS-störning'};
+const PER_PAGE = 25;
+
+let state = {
+  q: '',
+  mode: 'AND',
+  pmesii: [],
+  pmesiiMode: 'OR',
+  categories: [],
+  year: '',
+  week: '',
+  countries: [],
+  orgs: [],
+  persons: [],
+  timeline: false,
+  map: false,
+  linkedin: false,
+  sort: 'newest',
+  page: 1
+};
+
+function getParam(k){ return new URLSearchParams(location.search).get(k); }
+
+function loadFromURL(){
+  const p = new URLSearchParams(location.search);
+  if(p.get('q')) state.q = p.get('q');
+  if(p.get('mode')) state.mode = p.get('mode');
+  if(p.get('pmesii')) state.pmesii = p.get('pmesii').split(',').filter(Boolean);
+  if(p.get('pmesiiMode')) state.pmesiiMode = p.get('pmesiiMode');
+  if(p.get('cat')) state.categories = p.get('cat').split(',').filter(Boolean);
+  if(p.get('year')) state.year = p.get('year');
+  if(p.get('week')) state.week = p.get('week');
+  if(p.get('countries')) state.countries = p.get('countries').split(',').filter(Boolean);
+  if(p.get('orgs')) state.orgs = p.get('orgs').split(',').filter(Boolean);
+  if(p.get('persons')) state.persons = p.get('persons').split(',').filter(Boolean);
+  if(p.get('sort')) state.sort = p.get('sort');
+  if(p.get('page')) state.page = parseInt(p.get('page'))||1;
+  if(p.get('embed')==='1') document.body.classList.add('embed-mode');
+}
+
+function saveToURL(){
+  const p = new URLSearchParams();
+  if(state.q) p.set('q', state.q);
+  if(state.mode!=='AND') p.set('mode', state.mode);
+  if(state.pmesii.length) p.set('pmesii', state.pmesii.join(','));
+  if(state.pmesiiMode!=='OR') p.set('pmesiiMode', state.pmesiiMode);
+  if(state.categories.length) p.set('cat', state.categories.join(','));
+  if(state.year) p.set('year', state.year);
+  if(state.week) p.set('week', state.week);
+  if(state.countries.length) p.set('countries', state.countries.join(','));
+  if(state.orgs.length) p.set('orgs', state.orgs.join(','));
+  if(state.persons.length) p.set('persons', state.persons.join(','));
+  if(state.sort!=='newest') p.set('sort', state.sort);
+  if(state.page>1) p.set('page', state.page);
+  if(document.body.classList.contains('embed-mode')) p.set('embed','1');
+  const qs = p.toString();
+  history.replaceState(null,'', qs ? '?'+qs : location.pathname);
+}
+
+function tokenize(text){ return text.toLowerCase().replace(/["""]/g,'').trim().split(/\s+/).filter(Boolean); }
+
+function matchPost(post, q, mode){
+  if(!q.trim()) return true;
+  const search_text = [
+    post.title, post.summary, post.body||'',
+    (post.keywords||[]).join(' '),
+    (post.countries||[]).join(' '),
+    (post.places||[]).map(p=>p.name).join(' '),
+    (post.persons||[]).join(' '),
+    (post.organisations||[]).join(' '),
+    (post.categories||[]).join(' '),
+    (post.sources||[]).map(s=>s.name).join(' ')
+  ].join(' ').toLowerCase();
+
+  if(mode==='PHRASE'){
+    return search_text.includes(q.toLowerCase().replace(/^[""]|[""]$/g,''));
+  }
+  const tokens = tokenize(q);
+  const must_not = tokens.filter(t=>t.startsWith('-')).map(t=>t.slice(1));
+  const must = tokens.filter(t=>!t.startsWith('-'));
+  if(must_not.some(t=>search_text.includes(t))) return false;
+  if(mode==='OR') return must.some(t=>search_text.includes(t));
+  return must.every(t=>search_text.includes(t));
+}
+
+function scorePost(post, q){
+  if(!q.trim()) return 0;
+  const tokens = tokenize(q).filter(t=>!t.startsWith('-'));
+  let score = 0;
+  tokens.forEach(t=>{
+    if(post.title.toLowerCase().includes(t)) score += 10;
+    if((post.summary||'').toLowerCase().includes(t)) score += 3;
+    if((post.keywords||[]).some(k=>k.toLowerCase().includes(t))) score += 2;
+  });
+  return score;
+}
+
+function filterPosts(){
+  return POSTS.filter(p=>{
+    if(state.q && !matchPost(p, state.q, state.mode)) return false;
+    if(state.pmesii.length){
+      if(state.pmesiiMode==='AND'){
+        if(!state.pmesii.every(v=>p.pmesii.includes(v))) return false;
+      } else {
+        if(!state.pmesii.some(v=>p.pmesii.includes(v))) return false;
+      }
+    }
+    if(state.categories.length && !state.categories.some(c=>p.categories.includes(c))) return false;
+    if(state.year && String(p.isoYear)!==state.year) return false;
+    if(state.week){
+      const pw = `${p.isoYear}-W${String(p.isoWeek).padStart(2,'0')}`;
+      if(pw!==state.week) return false;
+    }
+    if(state.countries.length && !state.countries.some(c=>p.countries.includes(c))) return false;
+    if(state.orgs.length && !state.orgs.some(o=>(p.organisations||[]).includes(o))) return false;
+    if(state.persons.length && !state.persons.some(per=>(p.persons||[]).includes(per))) return false;
+    if(state.timeline && !p.timeline) return false;
+    if(state.map && !p.map) return false;
+    if(state.linkedin && !p.linkedinUrl) return false;
+    return true;
+  });
+}
+
+function sortPosts(posts){
+  const s = state.sort;
+  if(s==='relevance' && state.q) return [...posts].sort((a,b)=>scorePost(b,state.q)-scorePost(a,state.q));
+  if(s==='oldest') return [...posts].sort((a,b)=>a.published.localeCompare(b.published));
+  if(s==='title') return [...posts].sort((a,b)=>a.title.localeCompare(b.title,'sv'));
+  return [...posts].sort((a,b)=>b.published.localeCompare(a.published));
+}
+
+function fmtDate(iso){ const d=new Date(iso+'T12:00:00Z'); return d.toLocaleDateString('sv-SE',{year:'numeric',month:'short',day:'numeric'}); }
+function fmtWeek(y,w){ return `${y}-W${String(w).padStart(2,'0')}`; }
+
+function renderPmesiiTag(v){ return `<span class="tag tag-${v}" title="${PMESII_LABELS[v]}">${v}</span>`; }
+function renderCatTag(c){ const lbl=CAT_LABELS[c]||c; return `<span class="cat cat-${c}">${lbl}</span>`; }
+
+function renderCard(post){
+  const pmesiiTags = (post.pmesii||[]).map(renderPmesiiTag).join('');
+  const catTags = (post.categories||[]).map(renderCatTag).join('');
+  const countries = (post.countries||[]).join(', ');
+  const slug = post.slug || post.id;
+  return `
+  <article class="post-card" data-id="${post.id}">
+    <div class="card-meta-top">
+      <span class="card-date">${fmtDate(post.published)}</span>
+      <span class="card-week">${fmtWeek(post.isoYear,post.isoWeek)}</span>
+    </div>
+    <div class="card-title"><a href="#" class="open-modal" data-id="${post.id}">${esc(post.title)}</a></div>
+    <div class="card-summary">${esc(post.summary)}</div>
+    <div class="card-tags">${pmesiiTags}${catTags}</div>
+    <div class="card-footer">
+      <div class="card-countries">${esc(countries)}</div>
+      <div class="card-links">
+        <a href="#" class="open-modal" data-id="${post.id}">Visa</a>
+        ${post.linkedinUrl ? `<a href="${esc(post.linkedinUrl)}" target="_blank" rel="noopener noreferrer">LinkedIn ↗</a>` : ''}
+      </div>
+    </div>
+  </article>`;
+}
+
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function renderModal(post){
+  const pmesiiTags = (post.pmesii||[]).map(renderPmesiiTag).join('');
+  const catTags = (post.categories||[]).map(renderCatTag).join('');
+  const sources = (post.sources||[]).map(s=>`<li><a href="${esc(s.url)}" target="_blank" rel="noopener noreferrer">${esc(s.name)} ↗</a></li>`).join('');
+  return `
+    <h2>${esc(post.title)}</h2>
+    <div class="modal-date">${fmtDate(post.published)} &nbsp;·&nbsp; ${fmtWeek(post.isoYear,post.isoWeek)}</div>
+    <div class="modal-summary">${esc(post.summary)}${post.body ? '<br><br>'+esc(post.body) : ''}</div>
+    <div class="modal-section">
+      <div class="modal-section-title">PMESII & Kategorier</div>
+      <div class="modal-tags">${pmesiiTags}${catTags}</div>
+    </div>
+    ${post.countries && post.countries.length ? `<div class="modal-section"><div class="modal-section-title">Länder</div><div style="font-size:13px;color:var(--text2);">${esc(post.countries.join(', '))}</div></div>` : ''}
+    ${post.keywords && post.keywords.length ? `<div class="modal-section"><div class="modal-section-title">Nyckelord</div><div style="display:flex;flex-wrap:wrap;gap:0.3rem;">${post.keywords.map(k=>`<span style="background:var(--tag-bg);color:var(--tag-text);border-radius:4px;padding:1px 7px;font-size:11px;">${esc(k)}</span>`).join('')}</div></div>` : ''}
+    ${post.persons && post.persons.length ? `<div class="modal-section"><div class="modal-section-title">Personer</div><div style="font-size:13px;color:var(--text2);">${esc(post.persons.join(', '))}</div></div>` : ''}
+    ${post.organisations && post.organisations.length ? `<div class="modal-section"><div class="modal-section-title">Organisationer</div><div style="font-size:13px;color:var(--text2);">${esc(post.organisations.join(', '))}</div></div>` : ''}
+    ${sources ? `<div class="modal-section"><div class="modal-section-title">Källor</div><ul class="modal-sources">${sources}</ul></div>` : ''}
+    <div class="modal-actions">
+      ${post.linkedinUrl ? `<a href="${esc(post.linkedinUrl)}" target="_blank" rel="noopener noreferrer" class="btn-primary">LinkedIn ↗</a>` : ''}
+      ${post.timeline ? `<a href="https://veckobrevskartan.github.io/tidslinjen/" target="_blank" rel="noopener noreferrer" class="btn-secondary">Tidslinje</a>` : ''}
+      ${post.map ? `<a href="https://veckobrevskartan.github.io/veckobrevskartan/" target="_blank" rel="noopener noreferrer" class="btn-secondary">Karta</a>` : ''}
+    </div>`;
+}
+
+function renderResults(){
+  const filtered = filterPosts();
+  const sorted = sortPosts(filtered);
+  const total = sorted.length;
+  const pages = Math.ceil(total/PER_PAGE);
+  const p = Math.min(state.page, pages||1);
+  const slice = sorted.slice((p-1)*PER_PAGE, p*PER_PAGE);
+
+  const qInfo = state.q ? ` för "<strong>${esc(state.q)}</strong>"` : '';
+  document.getElementById('results-count').innerHTML = `Visar <strong>${slice.length}</strong> av <strong>${total}</strong> inlägg${qInfo}`;
+
+  const grid = document.getElementById('post-grid');
+  if(slice.length===0){
+    grid.innerHTML = `<div class="empty-state"><h3>Inga träffar</h3><p>Prova att ändra söktermen eller filtren.</p></div>`;
+  } else {
+    grid.innerHTML = slice.map(renderCard).join('');
+  }
+
+  renderPagination(p, pages);
+  renderActiveFilters();
+  saveToURL();
+}
+
+function renderPagination(current, total){
+  const el = document.getElementById('pagination');
+  if(total<=1){ el.innerHTML=''; return; }
+  let html = `<button class="page-btn" ${current===1?'disabled':''} onclick="goPage(${current-1})">‹</button>`;
+  for(let i=1;i<=total;i++){
+    if(i===1||i===total||Math.abs(i-current)<=2){
+      html+=`<button class="page-btn ${i===current?'active':''}" onclick="goPage(${i})">${i}</button>`;
+    } else if(Math.abs(i-current)===3){
+      html+=`<span style="color:var(--text3);padding:0 4px;">…</span>`;
+    }
+  }
+  html+=`<button class="page-btn" ${current===total?'disabled':''} onclick="goPage(${current+1})">›</button>`;
+  el.innerHTML=html;
+}
+
+function goPage(n){ state.page=n; renderResults(); window.scrollTo(0,0); }
+
+function renderActiveFilters(){
+  const el = document.getElementById('active-filters');
+  let tags = [];
+  if(state.q) tags.push({label:`"${state.q}"`,key:'q'});
+  state.pmesii.forEach(v=>tags.push({label:`PMESII: ${v}`,key:'pmesii',val:v}));
+  state.categories.forEach(c=>tags.push({label:`${CAT_LABELS[c]||c}`,key:'cat',val:c}));
+  if(state.year) tags.push({label:`År: ${state.year}`,key:'year'});
+  if(state.week) tags.push({label:`Vecka: ${state.week}`,key:'week'});
+  state.countries.forEach(c=>tags.push({label:c,key:'country',val:c}));
+  state.orgs.forEach(o=>tags.push({label:o,key:'org',val:o}));
+  state.persons.forEach(p=>tags.push({label:p,key:'person',val:p}));
+  if(state.timeline) tags.push({label:'På tidslinje',key:'timeline'});
+  if(state.map) tags.push({label:'På karta',key:'map'});
+  if(state.linkedin) tags.push({label:'LinkedIn',key:'linkedin'});
+
+  el.innerHTML = tags.map(t=>`
+    <span class="active-tag">${esc(t.label)}<button onclick="removeFilter('${t.key}','${esc(t.val||'')}')" aria-label="Ta bort filter">✕</button></span>
+  `).join('') + (tags.length>1?`<button id="clear-all" onclick="clearAll()">Rensa alla</button>`:'');
+}
+
+function removeFilter(key, val){
+  if(key==='q'){ state.q=''; document.getElementById('search-input').value=''; document.getElementById('search-clear').classList.remove('visible'); }
+  else if(key==='pmesii'){ state.pmesii=state.pmesii.filter(v=>v!==val); updateCheckboxes('pmesii-filters',state.pmesii); }
+  else if(key==='cat'){ state.categories=state.categories.filter(c=>c!==val); updateCheckboxes('category-filters',state.categories); }
+  else if(key==='year'){ state.year=''; document.getElementById('year-filter').value=''; }
+  else if(key==='week'){ state.week=''; document.getElementById('week-filter').value=''; }
+  else if(key==='country'){ state.countries=state.countries.filter(c=>c!==val); updateCheckboxes('country-filters',state.countries); }
+  else if(key==='org'){ state.orgs=state.orgs.filter(o=>o!==val); updateCheckboxes('org-filters',state.orgs); }
+  else if(key==='person'){ state.persons=state.persons.filter(p=>p!==val); updateCheckboxes('person-filters',state.persons); }
+  else if(key==='timeline'){ state.timeline=false; document.getElementById('filter-timeline').checked=false; }
+  else if(key==='map'){ state.map=false; document.getElementById('filter-map').checked=false; }
+  else if(key==='linkedin'){ state.linkedin=false; document.getElementById('filter-linkedin').checked=false; }
+  state.page=1; renderResults();
+}
+
+function updateCheckboxes(containerId, values){
+  document.querySelectorAll(`#${containerId} input[type=checkbox]`).forEach(cb=>{
+    cb.checked=values.includes(cb.value);
+  });
+}
+
+function clearAll(){
+  state.q=''; state.pmesii=[]; state.categories=[]; state.year=''; state.week='';
+  state.countries=[]; state.orgs=[]; state.persons=[];
+  state.timeline=false; state.map=false; state.linkedin=false; state.page=1;
+  document.getElementById('search-input').value='';
+  document.getElementById('search-clear').classList.remove('visible');
+  document.getElementById('year-filter').value='';
+  document.getElementById('week-filter').value='';
+  document.getElementById('filter-timeline').checked=false;
+  document.getElementById('filter-map').checked=false;
+  document.getElementById('filter-linkedin').checked=false;
+  document.querySelectorAll('.filter-options input[type=checkbox]').forEach(cb=>cb.checked=false);
+  renderResults();
+}
+
+function buildSidebarFilters(){
+  const pmesiiEl = document.getElementById('pmesii-filters');
+  Object.entries(PMESII_LABELS).forEach(([k,v])=>{
+    const cnt = POSTS.filter(p=>p.pmesii.includes(k)).length;
+    pmesiiEl.innerHTML += `<label class="filter-opt"><input type="checkbox" value="${k}" class="pmesii-cb"> <span class="tag tag-${k}">${k}</span> <span style="color:var(--text3);font-size:11px;margin-left:auto;">${cnt}</span></label>`;
+  });
+
+  const catEl = document.getElementById('category-filters');
+  Object.entries(CAT_LABELS).forEach(([k,v])=>{
+    const cnt = POSTS.filter(p=>p.categories.includes(k)).length;
+    if(cnt===0) return;
+    catEl.innerHTML += `<label class="filter-opt"><input type="checkbox" value="${k}" class="cat-cb"> <span class="cat cat-${k}">${v}</span> <span style="color:var(--text3);font-size:11px;margin-left:auto;">${cnt}</span></label>`;
+  });
+
+  const countries = [...new Set(POSTS.flatMap(p=>p.countries||[]))].sort((a,b)=>a.localeCompare(b,'sv'));
+  const countryEl = document.getElementById('country-filters');
+  countries.forEach(c=>{
+    countryEl.innerHTML += `<label class="filter-opt"><input type="checkbox" value="${esc(c)}" class="country-cb"> ${esc(c)}</label>`;
+  });
+
+  const orgs = [...new Set(POSTS.flatMap(p=>p.organisations||[]))].filter(Boolean).sort((a,b)=>a.localeCompare(b,'sv'));
+  const orgEl = document.getElementById('org-filters');
+  orgs.forEach(o=>{
+    orgEl.innerHTML += `<label class="filter-opt"><input type="checkbox" value="${esc(o)}" class="org-cb"> ${esc(o)}</label>`;
+  });
+
+  const persons = [...new Set(POSTS.flatMap(p=>p.persons||[]))].filter(Boolean).sort((a,b)=>a.localeCompare(b,'sv'));
+  const personEl = document.getElementById('person-filters');
+  persons.forEach(per=>{
+    personEl.innerHTML += `<label class="filter-opt"><input type="checkbox" value="${esc(per)}" class="person-cb"> ${esc(per)}</label>`;
+  });
+
+  const weeks = [...new Set(POSTS.map(p=>fmtWeek(p.isoYear,p.isoWeek)))].sort().reverse();
+  const weekEl = document.getElementById('week-filter');
+  weeks.forEach(w=>{ weekEl.innerHTML += `<option value="${w}">${w}</option>`; });
+}
+
+function syncStateToFilters(){
+  if(state.q){ document.getElementById('search-input').value=state.q; document.getElementById('search-clear').classList.add('visible'); }
+  if(state.year) document.getElementById('year-filter').value=state.year;
+  if(state.week) document.getElementById('week-filter').value=state.week;
+  if(state.timeline) document.getElementById('filter-timeline').checked=true;
+  if(state.map) document.getElementById('filter-map').checked=true;
+  if(state.linkedin) document.getElementById('filter-linkedin').checked=true;
+  updateCheckboxes('pmesii-filters', state.pmesii);
+  updateCheckboxes('category-filters', state.categories);
+  updateCheckboxes('country-filters', state.countries);
+  updateCheckboxes('org-filters', state.orgs);
+  updateCheckboxes('person-filters', state.persons);
+  document.querySelectorAll('.mode-btn[data-mode]').forEach(btn=>{
+    btn.classList.toggle('active', btn.dataset.mode===state.mode);
+  });
+  if(state.pmesiiMode==='AND'){ document.getElementById('pmesii-and-btn').classList.add('active'); document.getElementById('pmesii-or-btn').classList.remove('active'); }
+}
+
+function setupListeners(){
+  let searchTimer;
+  document.getElementById('search-input').addEventListener('input', e=>{
+    state.q=e.target.value;
+    document.getElementById('search-clear').classList.toggle('visible', !!state.q);
+    state.page=1;
+    clearTimeout(searchTimer);
+    searchTimer=setTimeout(renderResults, 200);
+  });
+  document.getElementById('search-clear').addEventListener('click',()=>{
+    state.q=''; document.getElementById('search-input').value='';
+    document.getElementById('search-clear').classList.remove('visible');
+    state.page=1; renderResults();
+  });
+
+  document.querySelectorAll('.mode-btn[data-mode]').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      state.mode=btn.dataset.mode; state.page=1;
+      document.querySelectorAll('.mode-btn[data-mode]').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      renderResults();
+    });
+  });
+
+  document.getElementById('pmesii-and-btn').addEventListener('click',()=>{
+    state.pmesiiMode='AND';
+    document.getElementById('pmesii-and-btn').classList.add('active');
+    document.getElementById('pmesii-or-btn').classList.remove('active');
+    state.page=1; renderResults();
+  });
+  document.getElementById('pmesii-or-btn').addEventListener('click',()=>{
+    state.pmesiiMode='OR';
+    document.getElementById('pmesii-or-btn').classList.add('active');
+    document.getElementById('pmesii-and-btn').classList.remove('active');
+    state.page=1; renderResults();
+  });
+
+  document.getElementById('pmesii-filters').addEventListener('change', e=>{
+    if(e.target.classList.contains('pmesii-cb')){
+      const v=e.target.value;
+      if(e.target.checked) state.pmesii.push(v); else state.pmesii=state.pmesii.filter(x=>x!==v);
+      state.page=1; renderResults();
+    }
+  });
+  document.getElementById('category-filters').addEventListener('change', e=>{
+    if(e.target.classList.contains('cat-cb')){
+      const v=e.target.value;
+      if(e.target.checked) state.categories.push(v); else state.categories=state.categories.filter(x=>x!==v);
+      state.page=1; renderResults();
+    }
+  });
+  document.getElementById('year-filter').addEventListener('change', e=>{ state.year=e.target.value; state.page=1; renderResults(); });
+  document.getElementById('week-filter').addEventListener('change', e=>{ state.week=e.target.value; state.page=1; renderResults(); });
+  document.getElementById('filter-timeline').addEventListener('change', e=>{ state.timeline=e.target.checked; state.page=1; renderResults(); });
+  document.getElementById('filter-map').addEventListener('change', e=>{ state.map=e.target.checked; state.page=1; renderResults(); });
+  document.getElementById('filter-linkedin').addEventListener('change', e=>{ state.linkedin=e.target.checked; state.page=1; renderResults(); });
+
+  document.getElementById('country-filters').addEventListener('change', e=>{
+    if(e.target.classList.contains('country-cb')){
+      const v=e.target.value;
+      if(e.target.checked) state.countries.push(v); else state.countries=state.countries.filter(x=>x!==v);
+      state.page=1; renderResults();
+    }
+  });
+  document.getElementById('org-filters').addEventListener('change', e=>{
+    if(e.target.classList.contains('org-cb')){
+      const v=e.target.value;
+      if(e.target.checked) state.orgs.push(v); else state.orgs=state.orgs.filter(x=>x!==v);
+      state.page=1; renderResults();
+    }
+  });
+  document.getElementById('person-filters').addEventListener('change', e=>{
+    if(e.target.classList.contains('person-cb')){
+      const v=e.target.value;
+      if(e.target.checked) state.persons.push(v); else state.persons=state.persons.filter(x=>x!==v);
+      state.page=1; renderResults();
+    }
+  });
+
+  document.getElementById('sort-select').addEventListener('change', e=>{ state.sort=e.target.value; state.page=1; renderResults(); });
+
+  function makeFilterSearch(inputId, containerId){
+    document.getElementById(inputId).addEventListener('input', e=>{
+      const q=e.target.value.toLowerCase();
+      document.querySelectorAll(`#${containerId} .filter-opt`).forEach(el=>{
+        const txt=el.textContent.toLowerCase();
+        el.style.display=txt.includes(q)?'':'none';
+      });
+    });
+  }
+  makeFilterSearch('country-search','country-filters');
+  makeFilterSearch('org-search','org-filters');
+  makeFilterSearch('person-search','person-filters');
+
+  document.getElementById('post-grid').addEventListener('click', e=>{
+    const link=e.target.closest('.open-modal');
+    if(!link) return;
+    e.preventDefault();
+    const id=link.dataset.id;
+    const post=POSTS.find(p=>p.id===id);
+    if(post){ openModal(post); }
+  });
+
+  document.getElementById('modal-close').addEventListener('click', closeModal);
+  document.getElementById('post-modal').addEventListener('click', e=>{ if(e.target===document.getElementById('post-modal')) closeModal(); });
+  document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeModal(); });
+
+  document.getElementById('mobile-filter-open').addEventListener('click',()=>{ document.getElementById('sidebar').classList.add('open'); });
+  document.getElementById('mobile-filter-close').addEventListener('click',()=>{ document.getElementById('sidebar').classList.remove('open'); });
+
+  document.getElementById('sort-select').value = state.sort;
+}
+
+function openModal(post){
+  document.getElementById('modal-content').innerHTML=renderModal(post);
+  document.getElementById('post-modal').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeModal(){
+  document.getElementById('post-modal').classList.remove('open');
+  document.body.style.overflow='';
+}
+
+loadFromURL();
+buildSidebarFilters();
+syncStateToFilters();
+setupListeners();
+renderResults();
+</script>
+</body>
+</html>
