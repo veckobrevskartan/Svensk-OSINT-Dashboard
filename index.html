@@ -781,15 +781,25 @@ function clearAll(){
 
 // BUILD FILTER SIDEBAR
 function buildFilters(){
-  const pmCounts={"M": 41, "INFRA": 15, "INFO": 27, "P": 35, "E": 10, "S": 7};
-  const catCounts={"MIL": 24, "MAR": 11, "INFRA": 13, "HYBRID": 26, "POLICY": 25, "NUCLEAR": 4, "INTEL": 13, "LEGAL": 8, "DRONE": 5, "TERROR": 3, "GPS": 1};
-  const countryCounts={"Ryssland": 36, "Kina": 12, "Sverige": 6, "Norge": 6, "Danmark": 4, "Ukraina": 6, "Nordkorea": 2, "USA": 2, "Estland": 5, "Litauen": 3, "EU": 6, "Belgien": 1, "Spanien": 1, "Etiopien": 1, "Eritrea": 1, "Azerbajdzjan": 2, "Armenien": 2, "Iran": 4, "Tjeckien": 1, "Jemen": 2, "Houthi": 1, "Tunisien": 1, "Italien": 1, "Frankrike": 2, "Tyskland": 3, "Mexiko": 1, "Finland": 7, "Ungern": 1, "Somaliland": 1, "Taiwan": 2, "Storbritannien": 2, "NATO": 3, "Saudiarabien": 2, "Bulgarien": 1, "Moldavien": 1, "Israel": 2, "Libanon": 1, "Polen": 3, "Belarus": 2, "Pakistan": 1, "Indien": 1, "Lettland": 1, "Nederl\u00e4nderna": 1, "Turkiet": 1, "Mali": 1, "Burkina Faso": 1, "Filippinerna": 1, "Vietnam": 1};
-  const orgCounts={"EU-kommissionen": 1, "ISI": 1, "SPD": 1, "LPAB": 1, "Sandworm": 1, "GRU": 3, "Ukrenergo": 1, "AIVD": 1, "S\u00e4po": 1, "PST": 2, "Islamiska staten": 1, "KGB Belarus": 1, "NATO": 2, "T\u00fcrk Deniz Kuvvetleri": 1, "RF Armed Forces": 1, "APT41": 1, "ENISA": 1, "KAPO": 1, "Afrika Korpset": 1, "Transportstyrelsen": 1, "Traficom": 1, "KPA": 1, "IRGC": 1, "AEOI": 1, "PET": 1, "PLAN": 1, "PLAN Navy": 1, "UAF": 1, "FSB": 1};
-  const personCounts={"Aleksandr Lukasjenka": 1, "Kim Jong-un": 1};
-  const allCountries=["Armenien", "Azerbajdzjan", "Belarus", "Belgien", "Bulgarien", "Burkina Faso", "Danmark", "EU", "Eritrea", "Estland", "Etiopien", "Filippinerna", "Finland", "Frankrike", "Houthi", "Indien", "Iran", "Israel", "Italien", "Jemen", "Kina", "Lettland", "Libanon", "Litauen", "Mali", "Mexiko", "Moldavien", "NATO", "Nederl\u00e4nderna", "Nordkorea", "Norge", "Pakistan", "Polen", "Ryssland", "Saudiarabien", "Somaliland", "Spanien", "Storbritannien", "Sverige", "Taiwan", "Tjeckien", "Tunisien", "Turkiet", "Tyskland", "USA", "Ukraina", "Ungern", "Vietnam"];
-  const allOrgs=["AEOI", "AIVD", "APT41", "Afrika Korpset", "ENISA", "EU-kommissionen", "FSB", "GRU", "IRGC", "ISI", "Islamiska staten", "KAPO", "KGB Belarus", "KPA", "LPAB", "NATO", "PET", "PLAN", "PLAN Navy", "PST", "RF Armed Forces", "SPD", "Sandworm", "S\u00e4po", "Traficom", "Transportstyrelsen", "T\u00fcrk Deniz Kuvvetleri", "UAF", "Ukrenergo"];
-  const allPersons=["Aleksandr Lukasjenka", "Kim Jong-un"];
-  const allKeywords=["AI", "APT41", "Afrika Korpset", "Arktis", "Armenien", "Azerbajdzjan", "BIS", "BND", "BRELL", "Baltikum", "Belarus", "Belgien", "Bosporen", "Bulgarien", "Burkina Faso", "DGSI", "Danmark", "ECHR", "EEAS", "EU", "EU-integrering", "EU-parlamentet", "EV", "EW", "Eritrea", "Estland", "Etiopien", "FN", "FSB", "Finland", "Frankrike", "GPS", "GRU", "Genevekonventionen", "Gotland", "Gotlandsdjupet", "Heathrow", "Hizbollah", "Hormuz", "Horn av Afrika", "Houthi", "IRGC", "IS", "Indien", "Interpol", "Iran", "Israel", "Italien", "Jemen", "KAPO", "Kaliningrad", "Kashmir", "Katalonien", "Kina", "Kursk", "LNG", "LPAB", "Leeds", "Leningrad", "Lettland", "Libanon", "Litauen", "LoC", "Lukasjenka", "Mali", "Mexiko", "Moldavien", "Montreux", "NATO", "NCSC", "NGO", "Nederl\u00e4nderna", "Nordkorea", "Nordsj\u00f6n", "Norge", "Novitjok", "OSSE", "Orb\u00e1n", "PET", "PLAN"];
+  // Compute counts dynamically from POSTS array
+  const pmCounts={};
+  const catCounts={};
+  const countryCounts={};
+  const orgCounts={};
+  const personCounts={};
+  const kwCounts={};
+  POSTS.forEach(p=>{
+    (p.pmesii||[]).forEach(v=>{pmCounts[v]=(pmCounts[v]||0)+1;});
+    (p.categories||[]).forEach(v=>{catCounts[v]=(catCounts[v]||0)+1;});
+    (p.countries||[]).forEach(v=>{countryCounts[v]=(countryCounts[v]||0)+1;});
+    (p.organisations||[]).forEach(v=>{if(v&&v.trim())orgCounts[v]=(orgCounts[v]||0)+1;});
+    (p.persons||[]).forEach(v=>{if(v&&v.trim())personCounts[v]=(personCounts[v]||0)+1;});
+    (p.keywords||[]).forEach(v=>{if(v&&v.trim())kwCounts[v]=(kwCounts[v]||0)+1;});
+  });
+  const allCountries=Object.keys(countryCounts).sort((a,b)=>a.localeCompare(b,'sv'));
+  const allOrgs=Object.keys(orgCounts).sort((a,b)=>orgCounts[b]-orgCounts[a]);
+  const allPersons=Object.keys(personCounts).sort((a,b)=>a.localeCompare(b,'sv'));
+  const allKeywords=Object.keys(kwCounts).sort((a,b)=>kwCounts[b]-kwCounts[a]).slice(0,100);
 
   ['P','M','E','S','INFO','INFRA'].forEach(v=>{
     $('fp-pmesii').innerHTML+=`<label class="fp-opt"><input type="checkbox" value="${v}" class="pm-cb"><span class="pm-b pm-${v}">${v}</span><span class="fp-cnt">${pmCounts[v]||0}</span></label>`;
@@ -798,10 +808,10 @@ function buildFilters(){
     if(!(catCounts[k]||0))return;
     $('fp-cat').innerHTML+=`<label class="fp-opt"><input type="checkbox" value="${k}" class="cat-cb"><span class="cat-pill">${v}</span><span class="fp-cnt">${catCounts[k]}</span></label>`;
   });
-  allCountries.forEach(c=>{$('fp-country').innerHTML+=`<label class="fp-opt"><input type="checkbox" value="${c}" class="country-cb">${c}<span class="fp-cnt">${countryCounts[c]||0}</span></label>`;});
-  allOrgs.forEach(o=>{if(!o)return;$('fp-org').innerHTML+=`<label class="fp-opt"><input type="checkbox" value="${o}" class="org-cb">${o}<span class="fp-cnt">${orgCounts[o]||0}</span></label>`;});
-  allPersons.forEach(p=>{$('fp-person').innerHTML+=`<label class="fp-opt"><input type="checkbox" value="${p}" class="person-cb">${p}</label>`;});
-  allKeywords.forEach(k=>{$('fp-kw').innerHTML+=`<label class="fp-opt"><input type="checkbox" value="${k}" class="kw-cb">#${k}</label>`;});
+  allCountries.forEach(c=>{$('fp-country').innerHTML+=`<label class="fp-opt"><input type="checkbox" value="${c}" class="country-cb">${esc(c)}<span class="fp-cnt">${countryCounts[c]||0}</span></label>`;});
+  allOrgs.forEach(o=>{if(!o)return;$('fp-org').innerHTML+=`<label class="fp-opt"><input type="checkbox" value="${o}" class="org-cb">${esc(o)}<span class="fp-cnt">${orgCounts[o]||0}</span></label>`;});
+  allPersons.forEach(p=>{if(!p)return;$('fp-person').innerHTML+=`<label class="fp-opt"><input type="checkbox" value="${p}" class="person-cb">${esc(p)}</label>`;});
+  allKeywords.forEach(k=>{if(!k)return;$('fp-kw').innerHTML+=`<label class="fp-opt"><input type="checkbox" value="${k}" class="kw-cb">#${esc(k)}</label>`;});
 }
 function makeSubSearch(iid,cid){$( iid).addEventListener('input',e=>{const q=e.target.value.toLowerCase();document.querySelectorAll(`#${cid} .fp-opt`).forEach(el=>el.style.display=el.textContent.toLowerCase().includes(q)?'':'none');});}
 
