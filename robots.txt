@@ -1,4 +1,0 @@
-User-agent: *
-Allow: /
-
-Sitemap: https://veckobrevskartan.github.io/arkiv/sitemap.xml
